@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NØX PRO // Institutional Trading &amp; Risk Terminal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2306070a'/%3E%3Cpolygon points='50,8 88,29 88,71 50,92 12,71 12,29' fill='none' stroke='%23f0a729' stroke-width='5'/%3E%3Cpolygon points='50,32 68,50 50,68 32,50' fill='%23f0a729'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06070a;
+  --bg-1:#0a0d12;
+  --panel:#0d1017;
+  --panel-2:#10141b;
+  --line:#1b212b;
+  --line-bright:#2a3240;
+  --amber:#f0a729;
+  --amber-dim:#8a6516;
+  --amber-glow:rgba(240,167,41,0.35);
+  --teal:#1fe0c4;
+  --teal-dim:#0f6b5c;
+  --red:#ff4d6a;
+  --red-dim:#7a1f2e;
+  --text:#e9edf3;
+  --text-mid:#8b95a5;
+  --text-dim:#4d5566;
+  --radius:2px;
+  --sans:'Space Grotesk',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(circle at 15% 0%, rgba(240,167,41,0.05), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(31,224,196,0.04), transparent 45%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-attachment:fixed;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-size:34px 34px;
+  pointer-events:none;
+  z-index:0;
+}
+::selection{background:var(--amber);color:#000;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:var(--bg-1);}
+::-webkit-scrollbar-thumb{background:var(--line-bright);border-radius:4px;}
+
+/* ---------- TICKER ---------- */
+.ticker-wrap{
+  position:relative;z-index:2;
+  width:100%;overflow:hidden;
+  background:#000;
+  border-bottom:1px solid var(--line);
+  height:34px;
+  display:flex;align-items:center;
+}
+.ticker-track{
+  display:flex;white-space:nowrap;
+  animation:scrollTicker 34s linear infinite;
+}
+@keyframes scrollTicker{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-50%);}
+}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:0 22px;
+  font-size:11.5px;letter-spacing:0.04em;
+  color:var(--text-mid);
+  border-right:1px solid var(--line);
+}
+.ticker-item b{color:var(--text);font-weight:600;}
+.ticker-item .up{color:var(--teal);}
+.ticker-item .down{color:var(--red);}
+
+/* ---------- SHELL ---------- */
+.shell{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 16px 60px;}
+
+/* ---------- LOGIN GATE ---------- */
+.gate{
+  min-height:calc(100vh - 34px);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.gate-card{
+  width:100%;max-width:400px;
+  background:linear-gradient(180deg, var(--panel-2), var(--panel));
+  border:1px solid var(--line-bright);
+  padding:36px 28px 30px;
+  position:relative;
+}
+.corner{position:absolute;width:14px;height:14px;border:1.5px solid var(--amber);opacity:0.85;}
+.corner.tl{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+.corner.tr{top:-1px;right:-1px;border-left:none;border-bottom:none;}
+.corner.bl{bottom:-1px;left:-1px;border-right:none;border-top:none;}
+.corner.br{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+
+.brand-mark{font-family:var(--sans);font-weight:700;font-size:26px;letter-spacing:0.03em;text-align:center;color:var(--text);}
+.brand-mark span{color:var(--amber);}
+.brand-sub{text-align:center;font-size:10.5px;letter-spacing:0.22em;color:var(--text-dim);margin-top:6px;text-transform:uppercase;}
+.brand-rule{height:1px;background:linear-gradient(90deg,transparent,var(--line-bright),transparent);margin:22px 0;}
+.gate-label{font-size:11px;color:var(--text-mid);letter-spacing:0.05em;margin-bottom:10px;text-align:center;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+input[type=text],input[type=number],input[type=date],input[type=password]{
+  width:100%;
+  background:#000;
+  border:1px solid var(--line-bright);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:14px;
+  padding:11px 12px;
+  outline:none;
+  border-radius:var(--radius);
+  transition:border-color .15s, box-shadow .15s;
+}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,input[type=password]:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow);}
+/* Native spinner ve takvim ikonlarını modernize et */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+input[type=date]{color-scheme:dark;}
+input[type=date]::-webkit-calendar-picker-indicator{
+  filter:invert(72%) sepia(54%) saturate(1200%) hue-rotate(358deg) brightness(101%) contrast(96%);
+  cursor:pointer;opacity:0.8;border-radius:3px;padding:2px;
+  transition:opacity .15s;
+}
+input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1;}
+select{
+  width:100%;background:#000;border:1px solid var(--line-bright);color:var(--text);
+  font-family:var(--mono);font-size:13.5px;padding:11px 12px;outline:none;border-radius:var(--radius);
+  appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg, transparent 50%, var(--amber) 50%),linear-gradient(135deg, var(--amber) 50%, transparent 50%);
+  background-position:calc(100% - 18px) center, calc(100% - 13px) center;
+  background-size:5px 5px, 5px 5px;background-repeat:no-repeat;
+}
+select:focus{border-color:var(--amber);}
+textarea{
+  width:100%;background:#000;border:1px solid var(--line-bright);color:var(--text);
+  font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;border-radius:var(--radius);
+  resize:vertical;line-height:1.5;
+}
+textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow);}
+input[type=file]{
+  width:100%;background:#000;border:1px dashed var(--line-bright);color:var(--text-mid);
+  font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;
+}
+.btn{
+  width:100%;
+  background:var(--amber);
+  color:#0a0700;
+  border:none;
+  font-family:var(--sans);
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:0.06em;
+  padding:13px 16px;
+  cursor:pointer;
+  border-radius:var(--radius);
+  text-transform:uppercase;
+  transition:transform .1s, box-shadow .15s, background .15s;
+}
+.btn:hover{background:#ffb948;box-shadow:0 0 22px var(--amber-glow);}
+.btn:active{transform:scale(0.98);}
+.btn-outline{
+  background:transparent;border:1px solid var(--line-bright);color:var(--text-mid);
+  font-family:var(--mono);font-weight:500;text-transform:none;letter-spacing:0.02em;
+}
+.btn-outline:hover{border-color:var(--amber);color:var(--amber);box-shadow:none;}
+.btn-ghost-sm{
+  background:transparent;border:none;color:var(--text-dim);font-family:var(--mono);
+  font-size:11px;text-decoration:underline;cursor:pointer;letter-spacing:0.03em;
+}
+.btn-ghost-sm:hover{color:var(--amber);}
+.btn-danger-sm{background:transparent;border:1px solid var(--red-dim);color:var(--red);font-size:10.5px;
+  padding:5px 9px;cursor:pointer;border-radius:var(--radius);font-family:var(--mono);}
+.btn-danger-sm:hover{background:var(--red);color:#000;}
+
+/* ---------- HEADER ---------- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 16px;flex-wrap:wrap;gap:12px;
+  border-bottom:1px solid var(--line);
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);position:relative;flex-shrink:0;}
+.pulse-dot::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--teal);
+  animation:pulse 1.8s ease-out infinite;
+}
+@keyframes pulse{0%{transform:scale(0.5);opacity:0.9;}100%{transform:scale(2.1);opacity:0;}}
+.topbar-title{font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:0.01em;}
+.topbar-title span{color:var(--amber);}
+.topbar-sub{font-size:10.5px;color:var(--text-dim);letter-spacing:0.1em;margin-top:2px;text-transform:uppercase;}
+.topbar-right{display:flex;align-items:center;gap:16px;font-size:11.5px;color:var(--text-mid);flex-wrap:wrap;justify-content:flex-end;}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);padding:7px 12px;border-radius:var(--radius);}
+.user-chip b{color:var(--amber);font-weight:600;}
+
+/* ---------- TABS ---------- */
+.tabbar{display:flex;gap:2px;margin:22px 0 0;overflow-x:auto;}
+.tab-btn{
+  flex:1;min-width:150px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  color:var(--text-mid);
+  font-family:var(--sans);font-weight:600;font-size:12.5px;letter-spacing:0.02em;
+  padding:13px 10px;cursor:pointer;text-align:center;
+  display:flex;flex-direction:column;gap:2px;align-items:center;
+  transition:all .15s;
+}
+.tab-btn .fkey{font-family:var(--mono);font-size:9.5px;color:var(--text-dim);letter-spacing:0.1em;}
+.tab-btn.active{background:var(--panel-2);color:var(--amber);border-color:var(--amber-dim);border-bottom:2px solid var(--amber);}
+.tab-btn.active .fkey{color:var(--amber-dim);}
+.tab-btn:hover:not(.active){color:var(--text);border-color:var(--line-bright);}
+
+.panel-body{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-top:none;
+  padding:22px 18px 26px;
+}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.section-title{
+  font-family:var(--sans);font-weight:600;font-size:13.5px;letter-spacing:0.03em;
+  color:var(--text);margin:26px 0 14px;display:flex;align-items:center;gap:9px;
+}
+.section-title:first-child{margin-top:0;}
+.section-title::before{content:'';width:3px;height:15px;background:var(--amber);display:inline-block;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media(max-width:560px){.grid-2{grid-template-columns:1fr;}.grid-4{grid-template-columns:repeat(2,1fr);}}
+
+.pct-btn{
+  background:#000;border:1px solid var(--line-bright);color:var(--text-mid);
+  font-family:var(--mono);font-size:12.5px;padding:9px 4px;cursor:pointer;border-radius:var(--radius);
+  transition:all .12s;
+}
+.pct-btn:hover{border-color:var(--amber);color:var(--amber);}
+.pct-btn.selected{background:var(--amber);border-color:var(--amber);color:#000;font-weight:700;}
+
+/* ---------- OUTPUT CARDS ---------- */
+.output-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;}
+@media(max-width:640px){.output-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{
+  background:var(--panel-2);border:1px solid var(--line);padding:14px 14px 12px;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--line-bright);}
+.stat-card.hero::before{background:var(--amber);}
+.stat-card.positive::before{background:var(--teal);}
+.stat-card.negative::before{background:var(--red);}
+.stat-label{font-size:9.5px;letter-spacing:0.09em;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+.stat-value{font-family:var(--mono);font-weight:600;font-size:19px;color:var(--text);letter-spacing:-0.01em;font-variant-numeric:tabular-nums;}
+.stat-value.amber{color:var(--amber);}
+.stat-value.teal{color:var(--teal);}
+.stat-value.red{color:var(--red);}
+.stat-value.small{font-size:15px;}
+
+/* ---------- TABLES ---------- */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);margin-top:10px;}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px;}
+thead th{
+  background:#000;color:var(--text-dim);text-align:left;font-weight:500;
+  padding:9px 10px;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;
+  border-bottom:1px solid var(--line-bright);white-space:nowrap;
+}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--text-mid);white-space:nowrap;}
+tbody tr:hover{background:rgba(240,167,41,0.03);}
+tbody tr:last-child td{border-bottom:none;}
+td.win{color:var(--teal);font-weight:600;}
+td.loss{color:var(--red);font-weight:600;}
+.empty-row td{text-align:center;color:var(--text-dim);padding:22px;font-style:italic;}
+
+/* ---------- VAULT BALANCE ---------- */
+.balance-hero{
+  background:linear-gradient(160deg, var(--panel-2), #000);
+  border:1px solid var(--line-bright);
+  padding:24px 20px;text-align:center;position:relative;margin-bottom:22px;
+}
+.balance-hero .stat-label{text-align:center;}
+.balance-hero .stat-value{font-size:34px;color:var(--amber);text-shadow:0 0 24px var(--amber-glow);}
+.balance-edit-row{display:flex;align-items:center;justify-content:center;gap:3px;}
+.balance-edit-dollar{font-family:var(--mono);font-weight:600;font-size:28px;color:var(--amber);text-shadow:0 0 24px var(--amber-glow);}
+.balance-input{
+  background:transparent;border:none;border-bottom:1px solid transparent;outline:none;
+  font-family:var(--mono);font-weight:600;font-size:34px;color:var(--amber);
+  text-align:left;width:180px;max-width:60%;text-shadow:0 0 24px var(--amber-glow);
+  -moz-appearance:textfield;transition:border-color .15s;
+}
+.balance-input::-webkit-outer-spin-button,.balance-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.balance-input:focus{border-bottom-color:var(--amber);}
+.radio-row{display:flex;gap:8px;}
+.radio-opt{
+  flex:1;border:1px solid var(--line-bright);background:#000;padding:10px;text-align:center;
+  cursor:pointer;font-size:12px;color:var(--text-mid);border-radius:var(--radius);transition:all .12s;
+}
+.radio-opt.selected{border-color:var(--teal);color:var(--teal);background:rgba(31,224,196,0.06);}
+.radio-opt.selected.loss-mode{border-color:var(--red);color:var(--red);background:rgba(255,77,106,0.06);}
+
+.field-note{font-size:10.5px;color:var(--text-dim);margin-top:5px;}
+footer{text-align:center;padding:36px 0 14px;}
+.footer-motto{font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:0.16em;color:var(--amber);text-shadow:0 0 14px var(--amber-glow);margin-bottom:8px;}
+.footer-motto .ox{color:var(--amber);}
+.footer-since{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:var(--text-dim);}
+.footer-since .ox{color:var(--amber-dim);}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms !important;}}
+
+/* ---------- BOOT SEQUENCE: SYSTEM CALIBRATION ---------- */
+.boot-screen{position:fixed;inset:0;background:#000;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:30px;overflow:hidden;}
+.boot-screen::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(240,167,41,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,167,41,0.05) 1px, transparent 1px);
+  background-size:28px 28px;
+  opacity:0;
+  animation:none;
+}
+.boot-screen.animate::before{animation:gridFadeIn 1s ease forwards;}
+@keyframes gridFadeIn{to{opacity:1;}}
+
+.boot-core{position:relative;width:170px;height:170px;display:flex;align-items:center;justify-content:center;}
+.scan-ring{position:absolute;border:1px solid var(--amber);border-radius:50%;opacity:0;}
+.scan-ring.r1{width:60px;height:60px;}
+.scan-ring.r2{width:60px;height:60px;}
+.boot-screen.animate .scan-ring.r1{animation:ringPing 2.2s ease-out infinite;animation-delay:.2s;}
+.boot-screen.animate .scan-ring.r2{animation:ringPing 2.2s ease-out infinite;animation-delay:1.1s;}
+@keyframes ringPing{
+  0%{width:60px;height:60px;opacity:0.55;}
+  100%{width:190px;height:190px;opacity:0;}
+}
+
+.emblem-svg{width:104px;height:104px;position:relative;z-index:1;filter:drop-shadow(0 0 10px rgba(240,167,41,0.25));}
+.emblem-shape{fill:none;stroke:var(--amber);stroke-width:2;stroke-dasharray:1000;stroke-dashoffset:1000;}
+.emblem-shape.inner{stroke-width:1.4;opacity:0.75;}
+.boot-screen.animate .emblem-shape.outer{animation:drawShape 1.1s cubic-bezier(.4,.1,.2,1) forwards;animation-delay:.1s;}
+.boot-screen.animate .emblem-shape.inner{animation:drawShape .9s cubic-bezier(.4,.1,.2,1) forwards;animation-delay:.55s;}
+@keyframes drawShape{to{stroke-dashoffset:0;}}
+.emblem-dot{fill:var(--amber);opacity:0;transform-origin:52px 52px;}
+.boot-screen.animate .emblem-dot{animation:dotPop .4s ease forwards;animation-delay:1.3s;}
+@keyframes dotPop{
+  0%{opacity:0;transform:scale(0);}
+  60%{opacity:1;transform:scale(1.6);}
+  100%{opacity:1;transform:scale(1);}
+}
+
+.boot-status{width:220px;display:flex;flex-direction:column;gap:9px;opacity:0;}
+.boot-screen.animate .boot-status{animation:sceneIn .4s ease forwards;animation-delay:.15s;}
+@keyframes sceneIn{to{opacity:1;}}
+.boot-bar-track{height:2px;width:100%;background:var(--line-bright);position:relative;overflow:hidden;}
+.boot-bar-fill{height:100%;width:0%;background:var(--amber);box-shadow:0 0 8px var(--amber-glow);}
+.boot-screen.animate .boot-bar-fill{animation:barFill 1.6s cubic-bezier(.3,.1,.2,1) forwards;animation-delay:.2s;}
+@keyframes barFill{to{width:100%;}}
+.boot-status-text{font-family:var(--mono);font-size:9.5px;letter-spacing:0.18em;color:var(--text-dim);text-align:center;text-transform:uppercase;}
+
+.boot-caption{
+  font-family:var(--mono);font-size:15px;letter-spacing:0.14em;color:var(--text);
+  text-align:center;text-transform:uppercase;opacity:0;
+}
+.boot-screen.animate .boot-caption{animation:sceneIn .5s ease forwards;animation-delay:1.85s;}
+.boot-caption .ox{color:var(--amber);}
+.boot-caption .sep{color:var(--text-dim);margin:0 8px;}
+.boot-caption .blink-dot{animation:blinkDot 1s step-end infinite;color:var(--amber);}
+@keyframes blinkDot{50%{opacity:0;}}
+
+/* ---------- TOAST ---------- */
+.toast-container{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:8px;width:min(360px,92vw);pointer-events:none;}
+.toast{background:var(--panel-2);border:1px solid var(--line-bright);border-left:3px solid var(--amber);padding:11px 14px;font-size:12px;color:var(--text);box-shadow:0 10px 28px rgba(0,0,0,0.55);animation:toastIn .2s ease;font-family:var(--mono);}
+.toast.error{border-left-color:var(--red);}
+.toast.success{border-left-color:var(--teal);}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- TICKER LABEL ---------- */
+.ticker-label{flex-shrink:0;background:var(--panel-2);color:var(--text-dim);font-size:9.5px;letter-spacing:0.09em;padding:0 12px;border-right:1px solid var(--line-bright);white-space:nowrap;height:100%;display:flex;align-items:center;gap:5px;text-transform:uppercase;}
+.ticker-label .warn-dot{width:5px;height:5px;border-radius:50%;background:var(--red);box-shadow:0 0 5px var(--red);}
+
+/* ---------- SESSION / CLOCK ---------- */
+.session-row{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:10.5px;color:var(--text-mid);}
+.session-clock{font-family:var(--mono);}
+.sess-pills{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.sess-pill{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.05em;padding:3px 8px;border-radius:20px;
+  border:1px solid var(--line-bright);color:var(--text-dim);transition:all .25s;
+}
+.sess-pill.active{
+  border-color:var(--teal);color:var(--teal);background:rgba(31,224,196,0.09);
+  box-shadow:0 0 10px rgba(31,224,196,0.5);
+}
+
+/* ---------- RISK GAUGE ---------- */
+.gauge-wrap{margin-top:16px;}
+.gauge-track{position:relative;height:7px;border-radius:4px;
+  background:linear-gradient(90deg, rgba(31,224,196,0.28) 0%, rgba(31,224,196,0.28) 20%, rgba(240,167,41,0.28) 20%, rgba(240,167,41,0.28) 60%, rgba(255,77,106,0.28) 60%, rgba(255,77,106,0.28) 100%);}
+.gauge-fill{
+  position:absolute;top:0;left:0;height:100%;width:100%;border-radius:4px;
+  background:linear-gradient(90deg, var(--teal) 0%, var(--teal) 20%, var(--amber) 20%, var(--amber) 60%, var(--red) 60%, var(--red) 100%);
+  clip-path:inset(0 100% 0 0);
+  transition:clip-path .3s ease, filter .3s ease;
+  pointer-events:none;
+}
+.gauge-marker{position:absolute;top:-4px;width:3px;height:15px;background:var(--text);border-radius:2px;box-shadow:0 0 8px rgba(255,255,255,0.6);transition:left .3s ease;left:0%;}
+.gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-dim);margin-top:6px;letter-spacing:0.06em;text-transform:uppercase;}
+
+/* ---------- SECTION TITLE W/ ACTION ---------- */
+.section-title .stitle{flex:1;}
+.section-title .btn-ghost-sm{flex-shrink:0;}
+
+/* ---------- EQUITY CHART ---------- */
+.chart-wrap{border:1px solid var(--line);background:#000;padding:12px 8px 6px;margin-top:6px;position:relative;}
+.chart-wrap canvas{width:100%;height:150px;display:block;}
+.chart-caption{font-size:9.5px;color:var(--text-dim);text-align:center;margin-top:6px;letter-spacing:0.05em;}
+
+/* ---------- DAILY PERFORMANCE (RADIAL GAUGES) ---------- */
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-top:18px;}
+.perf-card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 10px 12px;text-align:center;position:relative;}
+.perf-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--line-bright);}
+.perf-card.hero::before{background:var(--amber);}
+.perf-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+.perf-gauge-wrap{position:relative;width:88px;height:88px;margin:0 auto;overflow:visible;}
+.perf-gauge-wrap svg{overflow:visible;display:block;}
+.perf-gauge-wrap svg circle{transition:stroke-dashoffset .6s ease;}
+.perf-gauge-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14.5px;color:var(--text);}
+.perf-big-value{font-family:var(--mono);font-weight:600;font-size:22px;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;padding:12px 0;}
+.perf-winloss-bar{display:flex;height:9px;border-radius:5px;overflow:hidden;margin:14px 4px 8px;background:var(--line);}
+.perf-winloss-fill{height:100%;transition:width .5s ease;}
+.perf-winloss-labels{display:flex;justify-content:space-between;font-size:10.5px;font-family:var(--mono);padding:0 2px;}
+
+.daily-log-list{margin-top:6px;}
+.daily-log-row{
+  display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;
+  padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);margin-bottom:8px;font-size:12px;
+}
+.daily-log-date{font-family:var(--mono);color:var(--text-dim);font-size:10.5px;}
+.daily-log-pnl{font-family:var(--mono);font-weight:700;}
+.daily-log-meta{font-size:10px;color:var(--text-dim);}
+
+/* ---------- TRADE JOURNAL ENTRY CARDS ---------- */
+.journal-entry{background:var(--panel-2);border:1px solid var(--line);margin-bottom:10px;border-radius:var(--radius);overflow:hidden;}
+.journal-entry summary{
+  list-style:none;cursor:pointer;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;
+  font-size:11.5px;color:var(--text-mid);font-family:var(--mono);
+}
+.journal-entry summary::-webkit-details-marker{display:none;}
+.journal-entry summary::before{content:'▸';color:var(--amber);flex-shrink:0;transition:transform .15s;}
+.journal-entry[open] summary::before{transform:rotate(90deg);}
+.journal-entry summary .je-no{color:var(--amber);font-weight:700;}
+.journal-entry summary .je-pair{color:var(--text);font-weight:600;}
+.journal-entry summary .je-dir.long{color:var(--teal);}
+.journal-entry summary .je-dir.short{color:var(--red);}
+.journal-entry summary .je-score{margin-left:auto;color:var(--amber);font-weight:700;}
+.journal-entry-body{
+  padding:14px;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:12px;
+}
+@media(max-width:560px){.journal-entry-body{grid-template-columns:1fr;}}
+.je-label{color:var(--text-dim);font-size:9.5px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+.je-value{color:var(--text);word-break:break-word;}
+.je-full{grid-column:1/-1;}
+.je-thumb{max-width:220px;width:100%;border:1px solid var(--line-bright);border-radius:var(--radius);cursor:pointer;display:block;margin-top:4px;}
+.je-delete{margin-top:4px;}
+
+/* ---------- TRADE JOURNAL: GRID VIEW ---------- */
+.tj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:10px;}
+.tj-card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s;}
+.tj-card:hover{border-color:var(--amber-dim);}
+.tj-card:active{transform:scale(0.98);}
+.tj-card.res-win{border:2px solid var(--teal);}
+.tj-card.res-loss{border:2px solid var(--red);}
+.tj-card.res-wait{border:2px solid var(--amber);}
+.tj-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#000;display:block;}
+.tj-card-noimg{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#000;color:var(--text-dim);font-size:26px;}
+.tj-card-body{padding:8px 9px;}
+.tj-card-top{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:var(--text-dim);margin-bottom:3px;font-family:var(--mono);}
+.tj-card-pair{font-weight:700;color:var(--text);font-size:12px;font-family:var(--mono);}
+.tj-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;margin-top:5px;font-family:var(--mono);}
+.tj-card-dir.long{color:var(--teal);}
+.tj-card-dir.short{color:var(--red);}
+.tj-card-score{color:var(--amber);font-weight:700;}
+
+/* ---------- TRADE JOURNAL: DETAIL MODAL ---------- */
+.tj-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:90;display:none;align-items:center;justify-content:center;padding:20px;}
+.tj-modal-overlay.open{display:flex;}
+.tj-modal{width:100%;max-width:320px;max-height:82vh;background:var(--panel);border:1px solid var(--line-bright);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.65);}
+.tj-modal-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);font-family:var(--sans);font-weight:600;font-size:13px;background:var(--panel-2);color:var(--text);gap:10px;}
+.tj-modal-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.tj-modal-btn{background:none;border:1px solid var(--line-bright);font-size:13px;padding:5px 9px;border-radius:var(--radius);cursor:pointer;line-height:1;}
+.tj-modal-btn.save{border-color:var(--amber-dim);color:var(--amber);}
+.tj-modal-btn.save:hover{background:var(--amber);color:#000;}
+.tj-modal-btn.pin{border-color:var(--line-bright);color:var(--text-mid);}
+.tj-modal-btn.pin:hover{border-color:var(--amber-dim);color:var(--amber);}
+.tj-modal-btn.pin.pinned{border-color:var(--amber);color:var(--amber);background:rgba(240,167,41,0.14);}
+.tj-modal-btn.delete{border-color:var(--red-dim);color:var(--red);}
+.tj-modal-btn.delete:hover{background:var(--red);color:#000;}
+.tj-modal-close{background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;}
+.tj-modal-close:hover{color:var(--red);}
+.tj-modal-body{padding:14px;overflow-y:auto;font-size:12px;display:flex;flex-direction:column;gap:9px;}
+.tj-modal-body img{width:100%;border-radius:4px;border:1px solid var(--line-bright);cursor:zoom-in;}
+</style>
+</head>
+<body>
+
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-core">
+    <span class="scan-ring r1"></span>
+    <span class="scan-ring r2"></span>
+    <svg class="emblem-svg" viewBox="0 0 104 104" xmlns="http://www.w3.org/2000/svg">
+      <polygon class="emblem-shape outer" pathLength="1000"
+        points="52,4 94,27 94,77 52,100 10,77 10,27"/>
+      <polygon class="emblem-shape inner" pathLength="1000"
+        points="52,28 76,52 52,76 28,52"/>
+      <circle class="emblem-dot" cx="52" cy="52" r="3.5"/>
+    </svg>
+  </div>
+  <div class="boot-status">
+    <div class="boot-bar-track"><div class="boot-bar-fill"></div></div>
+    <div class="boot-status-text">Sistem Kalibre Ediliyor</div>
+  </div>
+  <div class="boot-caption">N<span class="ox">Ø</span>X <span class="sep">//</span> PRO<span class="blink-dot">.</span></div>
+</div>
+
+<div class="ticker-wrap">
+  <span class="ticker-label"><span class="warn-dot"></span>Simüle Veri</span>
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============ GATE ============ -->
+<div class="gate" id="gateScreen">
+  <div class="gate-card">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="brand-mark">N<span>Ø</span>X <span>PRO</span></div>
+    <div class="brand-sub">Institutional Risk &amp; Portfolio Terminal</div>
+    <div class="brand-rule"></div>
+    <div class="gate-label">PIN'ini gir, terminal seni tanısın</div>
+    <div class="field">
+      <label>PIN</label>
+      <input type="password" id="pinInput" placeholder="•••••" maxlength="16" inputmode="numeric">
+      <div class="field-note" id="pinStatusNote">Kayıtlı adın ve verilerin otomatik yüklenecek.</div>
+    </div>
+    <button class="btn" id="gateEnterBtn" onclick="enterTerminal()">Terminale Giriş Yap</button>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div class="shell" id="appScreen" style="display:none;">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="pulse-dot"></span>
+      <div>
+        <div class="topbar-title">N<span>Ø</span>X <span>PRO</span></div>
+        <div class="topbar-sub">Risk Engine · Ledger · Simulation</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="session-row">
+        <span class="session-clock">🕐 <span id="clockIst">--:--:--</span> TR</span>
+        <span class="sess-pills">
+          <span class="sess-pill" id="sessAsia">ASYA</span><span class="sess-pill" id="sessLondon">LONDRA</span><span class="sess-pill" id="sessNY">NEW YORK</span>
+        </span>
+      </div>
+      <span style="color:var(--teal);letter-spacing:0.08em;">● LIVE TERMINAL</span>
+      <div class="user-chip"><span>👤</span><b id="userDisplay">GUEST</b></div>
+      <button class="btn-ghost-sm" onclick="renameUser()">İsim Değiştir</button>
+      <button class="btn-ghost-sm" onclick="showGate()">Çıkış Yap</button>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab-btn active" data-tab="risk" onclick="switchTab('risk')">
+      <span>🧮 Risk &amp; Lot Engine</span><span class="fkey">F1</span>
+    </button>
+    <button class="tab-btn" data-tab="tradejournal" onclick="switchTab('tradejournal')">
+      <span>📔 Trade Journal</span><span class="fkey">F2</span>
+    </button>
+    <button class="tab-btn" data-tab="vault" onclick="switchTab('vault')">
+      <span>💰 Kasa Defteri</span><span class="fkey">F3</span>
+    </button>
+    <button class="tab-btn" data-tab="backtest" onclick="switchTab('backtest')">
+      <span>📊 Winrate &amp; Backtest</span><span class="fkey">F4</span>
+    </button>
+    <button class="tab-btn" data-tab="dailyperf" onclick="switchTab('dailyperf')">
+      <span>📈 Günlük Performans</span><span class="fkey">F5</span>
+    </button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- ===== TAB 1: RISK ENGINE ===== -->
+    <div class="tab-panel active" id="tab-risk">
+
+      <div class="section-title">Parite Şablonu</div>
+      <select id="pairSelect" onchange="applyPairTemplate()">
+        <option value="XAUUSD">XAUUSD (Altın)</option>
+        <option value="XAGUSD">XAGUSD (Gümüş)</option>
+        <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+        <option value="ETHUSD">ETHUSD (Ethereum)</option>
+        <option value="EURUSD">EURUSD (Forex Major)</option>
+        <option value="GBPUSD">GBPUSD (Forex Major)</option>
+        <option value="USDJPY">USDJPY (Forex Major)</option>
+        <option value="USDTRY">USDTRY (Forex - TL Paritesi)</option>
+        <option value="NAS100">NAS100 / US30 (Endeks)</option>
+        <option value="DAX40">DAX40 (Endeks)</option>
+        <option value="USOIL">USOIL / WTI (Petrol)</option>
+        <option value="BIST100">BIST100 / Hisse</option>
+        <option value="CUSTOM">Özel / Manuel</option>
+      </select>
+
+      <div class="section-title">Hesap &amp; Risk</div>
+      <div class="grid-2">
+        <div class="field"><label>Hesap Bakiyesi ($)</label><input type="number" id="accBalance" value="10000" step="0.01"></div>
+        <div class="field"><label>Risk Yüzdesi (%)</label><input type="number" id="riskPct" value="1" step="0.1"></div>
+      </div>
+      <div class="grid-4" id="pctQuickRow">
+        <button class="pct-btn" onclick="setRiskPct(1)">%1</button>
+        <button class="pct-btn" onclick="setRiskPct(2)">%2</button>
+        <button class="pct-btn" onclick="setRiskPct(3)">%3</button>
+        <button class="pct-btn" onclick="setRiskPct(5)">%5</button>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div><div class="gauge-marker" id="gaugeMarker"></div></div>
+        <div class="gauge-labels"><span>Düşük Risk</span><span>Orta</span><span>Yüksek Risk</span></div>
+      </div>
+
+      <div class="section-title">Emir Fiyatları</div>
+      <div class="grid-2">
+        <div class="field"><label>Entry (Giriş) Fiyatı</label><input type="number" id="entryPrice" step="0.00001" value="2380.00"></div>
+        <div class="field"><label>Stop Loss Fiyatı</label><input type="number" id="slPrice" step="0.00001" value="2375.00"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Take Profit Fiyatı</label><input type="number" id="tpPrice" step="0.00001" value="2392.00"></div>
+        <div class="field"><label>Spread / Makas</label><input type="number" id="spreadVal" step="0.00001" value="0.30"></div>
+      </div>
+
+      <div class="section-title">Enstrüman Parametreleri</div>
+      <div class="grid-2">
+        <div class="field"><label>Kaldıraç (1:X)</label><input type="number" id="leverageVal" value="100" step="1"></div>
+        <div class="field"><label>Contract Size (Kontrat)</label><input type="number" id="contractSize" value="100" step="1"></div>
+      </div>
+      <div class="field-note" id="pairNote">Ons başına standart lot: 100. Formül tüm enstrümanlar için |Entry-SL| × Contract Size baz alınarak hesaplanır — Contract Size'ı elle değiştirebilirsiniz.</div>
+
+      <button class="btn" style="margin-top:20px;" onclick="calculateAndLog()">🚀 Hesapla &amp; Günlüğe Ekle</button>
+      <button class="btn btn-outline" style="margin-top:10px;" onclick="sendToJournal()">📔 Bu Pozisyonu Trade Journal'a Gönder</button>
+
+      <div class="output-grid">
+        <div class="stat-card hero"><div class="stat-label">Risk Miktarı ($)</div><div class="stat-value amber" id="outRiskAmt">$0.00</div></div>
+        <div class="stat-card"><div class="stat-label">Pozisyon / Lot Büyüklüğü</div><div class="stat-value" id="outLot">0.00 Lot</div></div>
+        <div class="stat-card"><div class="stat-label">Gerekli Teminat (Margin)</div><div class="stat-value" id="outMargin">$0.00</div></div>
+        <div class="stat-card"><div class="stat-label">Net Risk / Reward (R:R)</div><div class="stat-value" id="outRR">1 : 0.00</div></div>
+        <div class="stat-card positive"><div class="stat-label">Net Hedef Kâr (TP)</div><div class="stat-value teal" id="outTP">+$0.00</div></div>
+        <div class="stat-card negative"><div class="stat-label">Net Maksimum Zarar (SL)</div><div class="stat-value red" id="outSL">-$0.00</div></div>
+      </div>
+
+      <div class="section-title"><span class="stitle">📋 İşlem Günlüğü (Journal Log)</span><button class="btn-ghost-sm" onclick="exportJournal()">⭳ CSV indir</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parite</th><th>Lot</th><th>Risk $</th><th>Margin $</th><th>R:R</th><th>Hedef Kâr</th><th>İşlem</th></tr></thead>
+          <tbody id="journalBody"><tr class="empty-row"><td colspan="7">Henüz işlem eklenmedi. Hesapla &amp; Günlüğe Ekle butonunu kullanın.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: VAULT ===== -->
+    <div class="tab-panel" id="tab-vault">
+      <div class="balance-hero">
+        <div class="stat-label">Mevcut Ana Kasa Bakiyesi</div>
+        <div class="stat-value" id="vaultBalanceDisplay">$0.00</div>
+      </div>
+
+      <div class="section-title">Yeni Kasa Hareketi</div>
+      <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">İşlem Türü</label>
+      <div class="radio-row" style="margin-bottom:16px;">
+        <div class="radio-opt selected" id="radioDeposit" onclick="setVaultType('deposit')">Para Girişi (+)</div>
+        <div class="radio-opt" id="radioWithdraw" onclick="setVaultType('withdraw')">Para Çıkışı (-)</div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Miktar ($)</label><input type="number" id="vaultAmount" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>Açıklama</label><input type="text" id="vaultDesc" placeholder="örn. Maaş yatırımı"></div>
+      </div>
+      <button class="btn" onclick="processVault()">Kasaya İşle</button>
+
+      <div class="section-title"><span class="stitle">Kasa Geçmişi</span><button class="btn-ghost-sm" onclick="exportVault()">⭳ CSV indir</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarih</th><th>Tür</th><th>Miktar</th><th>Açıklama</th><th>Bakiye</th><th>İşlem</th></tr></thead>
+          <tbody id="vaultBody"><tr class="empty-row"><td colspan="5">Kasa hareketi bulunmuyor.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: BACKTEST ===== -->
+    <div class="tab-panel" id="tab-backtest">
+      <div class="section-title">Manuel Backtest &amp; Detaylı Winrate Simülatörü</div>
+
+      <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">İşlem Sonucu</label>
+      <div class="radio-row" style="margin-bottom:16px;">
+        <div class="radio-opt selected" id="radioWin" onclick="setSimResult('WIN')">✅ WIN (TP Oldu)</div>
+        <div class="radio-opt" id="radioLoss" onclick="setSimResult('LOSS')">❌ LOSS (SL Oldu)</div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Risk Oranı (%)</label><input type="number" id="simRisk" value="1" step="0.1"></div>
+        <div class="field"><label>Kazanılan R (R:R Oranı)</label><input type="number" id="simR" value="2" step="0.1"></div>
+      </div>
+      <button class="btn" onclick="addSimTrade()">➕ Manuel İşlem Ekle &amp; Projeksiyona Yansıt</button>
+
+      <div class="output-grid" style="margin-top:22px;">
+        <div class="stat-card"><div class="stat-label">Toplam Simüle İşlem</div><div class="stat-value small" id="simTotal">0</div></div>
+        <div class="stat-card hero"><div class="stat-label">Win Rate</div><div class="stat-value amber small" id="simWinRate">%0.0</div></div>
+        <div class="stat-card"><div class="stat-label">Kazanılan Toplam R</div><div class="stat-value small" id="simTotalR">0.0 R</div></div>
+        <div class="stat-card positive"><div class="stat-label">Simülasyon Net PnL</div><div class="stat-value teal small" id="simNetPnl">+$0.00</div></div>
+      </div>
+
+      <div class="balance-hero" style="margin-top:18px;">
+        <div class="stat-label">Simüle Edilen Güncel Bakiye (elle düzenlenebilir)</div>
+        <div class="balance-edit-row">
+          <span class="balance-edit-dollar">$</span>
+          <input type="number" id="simBalanceDisplay" class="balance-input" step="0.01" oninput="updateSimBalanceManual(this.value)">
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="resetSimulation()">Simülasyonu Sıfırla</button>
+
+      <div class="section-title"><span class="stitle">📈 Equity Eğrisi</span></div>
+      <div class="chart-wrap">
+        <canvas id="equityCanvas"></canvas>
+      </div>
+      <div class="chart-caption">Kesikli çizgi başlangıç bakiyeni gösterir · her nokta bir simülasyon işlemidir</div>
+
+      <div class="section-title"><span class="stitle">Eklenen Simülasyon İşlemleri</span><button class="btn-ghost-sm" onclick="exportSim()">⭳ CSV indir</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Durum</th><th>Risk %</th><th>R Oranı</th><th>Kâr/Zarar ($)</th><th>İşlem Bakiyesi</th></tr></thead>
+          <tbody id="simBody"><tr class="empty-row"><td colspan="6">Simülasyon işlemi eklenmedi.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: TRADE JOURNAL ===== -->
+    <div class="tab-panel" id="tab-tradejournal">
+      <div class="section-title">Yeni İşlem Kaydı</div>
+
+      <div class="grid-2">
+        <div class="field"><label>Tarih</label><input type="date" id="tj_date"></div>
+        <div class="field"><label>İşlem No</label><input type="text" id="tj_no" readonly></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Parite</label><input type="text" id="tj_pair" placeholder="örn. XAUUSD"></div>
+        <div class="field"><label>Zaman Dilimi</label><input type="text" id="tj_timeframe" placeholder="örn. M15"></div>
+      </div>
+
+      <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Yön</label>
+      <div class="radio-row" style="margin-bottom:16px;">
+        <div class="radio-opt selected" id="tj_dirLong" onclick="setTJDirection('LONG')">🟢 LONG</div>
+        <div class="radio-opt" id="tj_dirShort" onclick="setTJDirection('SHORT')">🔴 SHORT</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field"><label>Giriş</label><input type="number" id="tj_entry" step="0.00001"></div>
+        <div class="field"><label>Stop Loss</label><input type="number" id="tj_sl" step="0.00001"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Take Profit</label><input type="number" id="tj_tp" step="0.00001"></div>
+        <div class="field"><label>TP1</label><input type="number" id="tj_tp1" step="0.00001" placeholder="opsiyonel"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Risk %</label><input type="number" id="tj_riskPct" step="0.1"></div>
+        <div class="field"><label>Risk $</label><input type="number" id="tj_riskUsd" step="0.01"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>RR</label><input type="number" id="tj_rr" step="0.01"></div>
+        <div class="field"><label>BE (Breakeven Fiyatı)</label><input type="number" id="tj_be" step="0.00001" placeholder="opsiyonel"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Sonuç</label>
+          <select id="tj_result">
+            <option value="Açık">Açık</option>
+            <option value="TP">TP</option>
+            <option value="SL">SL</option>
+            <option value="BE">BE</option>
+            <option value="Manuel">Manuel Kapatıldı</option>
+          </select>
+        </div>
+        <div class="field"><label>İşlem Skoru (/10)</label><input type="number" id="tj_score" min="0" max="10" step="1" placeholder="0-10"></div>
+      </div>
+      <div class="field"><label>Setup</label><input type="text" id="tj_setup" placeholder="örn. Order Block + FVG Retest"></div>
+      <div class="field"><label>İşlem Notu</label><textarea id="tj_note" rows="2" placeholder="Girişteki mantığın, teyitlerin..."></textarea></div>
+      <div class="field"><label>Hata</label><textarea id="tj_mistake" rows="2" placeholder="Bu işlemde yaptığın hata varsa..."></textarea></div>
+      <div class="field"><label>Ders / Çıkarım</label><textarea id="tj_lesson" rows="2" placeholder="Bir dahakine ne yapacaksın..."></textarea></div>
+      <div class="field">
+        <label>📸 Grafik Görüntüsü</label>
+        <input type="file" id="tj_screenshot" accept="image/*" onchange="handleTJScreenshot(event)">
+        <div id="tj_screenshotPreview"></div>
+      </div>
+
+      <button class="btn" onclick="addTradeJournalEntry()">💾 İşlemi Kaydet</button>
+
+      <div class="section-title"><span class="stitle">📔 Kayıtlı İşlemler</span><button class="btn-ghost-sm" onclick="exportTradeJournal()">⭳ CSV indir</button></div>
+      <div id="tradeJournalList"></div>
+    </div>
+
+    <!-- ===== TAB 5: DAILY PERFORMANCE ===== -->
+    <div class="tab-panel" id="tab-dailyperf">
+      <div class="section-title">Bugünü Kaydet</div>
+      <div class="grid-2">
+        <div class="field"><label>Tarih</label><input type="date" id="dl_date"></div>
+        <div class="field"><label>Günlük P&amp;L ($)</label><input type="number" id="dl_pnl" step="0.01" placeholder="örn. 250 ya da -80"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>İşlem Sayısı</label><input type="number" id="dl_trades" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label>Kazanan İşlem Sayısı</label><input type="number" id="dl_wins" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="field"><label>Not (opsiyonel)</label><input type="text" id="dl_note" placeholder="Bugün nasıl geçti..."></div>
+      <button class="btn" onclick="saveDailyLog()">💾 Bugünü Kaydet</button>
+
+      <div class="perf-grid">
+        <div class="perf-card hero">
+          <div class="perf-label">Toplam P&amp;L</div>
+          <div class="perf-big-value" id="perfTotalPnl">$0.00</div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">İşlem Win %</div>
+          <div class="perf-gauge-wrap" id="perfTradeWinGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Gün Win %</div>
+          <div class="perf-gauge-wrap" id="perfDayWinGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Profit Factor</div>
+          <div class="perf-gauge-wrap" id="perfProfitFactorGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">En İyi Gün / Toplam Kâr</div>
+          <div class="perf-gauge-wrap" id="perfBestDayGauge"></div>
+        </div>
+        <div class="perf-card" style="grid-column:span 2;">
+          <div class="perf-label">Ort. Kazanç Günü / Ort. Kayıp Günü</div>
+          <div class="perf-winloss-bar">
+            <div class="perf-winloss-fill" id="perfWinBar" style="background:var(--teal);width:50%;"></div>
+            <div class="perf-winloss-fill" id="perfLossBar" style="background:var(--red);width:50%;"></div>
+          </div>
+          <div class="perf-winloss-labels">
+            <span style="color:var(--teal);" id="perfAvgWinLabel">+$0.00</span>
+            <span style="color:var(--red);" id="perfAvgLossLabel">-$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title"><span class="stitle">📈 Günlük Hesap Bakiyesi</span></div>
+      <div class="chart-wrap">
+        <canvas id="dailyBalanceCanvas"></canvas>
+      </div>
+      <div class="chart-caption">Kayıtlı günlerin kümülatif P&amp;L eğrisi</div>
+
+      <div class="section-title"><span class="stitle">🗓️ Kayıtlı Günler</span><button class="btn-ghost-sm" onclick="exportDailyLogs()">⭳ CSV indir</button></div>
+      <div class="daily-log-list" id="dailyLogList"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-motto">N<span class="ox">Ø</span> EM<span class="ox">Ø</span>TI<span class="ox">Ø</span>N ØNLY EXECUTI<span class="ox">Ø</span>N //</div>
+    <div class="footer-since">N<span class="ox">Ø</span>X PRO // Kuruluş: Ağustos 2026</div>
+  </footer>
+</div>
+
+<div class="tj-modal-overlay" id="tjModalOverlay" onclick="closeTJModal(event)">
+  <div class="tj-modal" onclick="event.stopPropagation()">
+    <div class="tj-modal-header">
+      <span id="tjModalTitle">İşlem Detayı</span>
+      <div class="tj-modal-actions">
+        <button class="tj-modal-btn save" onclick="saveTJModalEdit()" title="Kaydet">💾</button>
+        <button class="tj-modal-btn pin" id="tjPinBtn" onclick="toggleTJPin()" title="Pinle">📌</button>
+        <button class="tj-modal-btn delete" onclick="deleteCurrentTJEntry()" title="Sil">🗑️</button>
+        <button class="tj-modal-close" onclick="closeTJModal()">✕</button>
+      </div>
+    </div>
+    <div class="tj-modal-body" id="tjModalBody"></div>
+  </div>
+</div>
+
+<div class="tj-modal-overlay" id="vaultModalOverlay" onclick="closeVaultModal(event)">
+  <div class="tj-modal" onclick="event.stopPropagation()">
+    <div class="tj-modal-header">
+      <span id="vaultModalTitle">Kasa Hareketi</span>
+      <div class="tj-modal-actions">
+        <button class="tj-modal-btn save" onclick="saveVaultModalEdit()" title="Kaydet">💾</button>
+        <button class="tj-modal-btn pin" id="vaultPinBtn" onclick="toggleVaultPin()" title="Pinle">📌</button>
+        <button class="tj-modal-btn delete" onclick="deleteCurrentVaultEntry()" title="Sil">🗑️</button>
+        <button class="tj-modal-close" onclick="closeVaultModal()">✕</button>
+      </div>
+    </div>
+    <div class="tj-modal-body" id="vaultModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+const state = {
+  username: 'GUEST',
+  pin: '',
+  vaultBalance: 0,
+  vaultHistory: [],
+  journal: [],
+  tradeJournal: [],
+  vaultType: 'deposit',
+  simResult: 'WIN',
+  simBalance: 10000,
+  simStartBalance: 10000,
+  simTrades: [],
+  simStats: { total:0, wins:0, totalR:0, netPnl:0 },
+  dailyLogs: []
+};
+
+const PAIRS = {
+  XAUUSD:  { contractSize:100,    leverage:100, spread:0.30,   entry:2380.00, sl:2375.00, tp:2392.00, note:"Ons başına standart lot: 100. Formül |Entry-SL| × Contract Size baz alınır." },
+  XAGUSD:  { contractSize:50,     leverage:50,  spread:0.03,   entry:28.50,   sl:28.10,   tp:29.30,   note:"Mini gümüş kontratı 50 ons varsayılmıştır (standart kontrat 5000 ons olabilir, brokerine göre düzelt)." },
+  BTCUSD:  { contractSize:1,      leverage:20,  spread:15,     entry:64000,   sl:63500,   tp:65200,   note:"1 Lot = 1 BTC varsayılır. Yüksek volatilite nedeniyle küçük lot boyutlarına dikkat edin." },
+  ETHUSD:  { contractSize:1,      leverage:20,  spread:1.2,    entry:3400,    sl:3350,    tp:3520,    note:"1 Lot = 1 ETH varsayılır. Kripto piyasasında 7/24 fiyat hareketine dikkat edin." },
+  EURUSD:  { contractSize:100000, leverage:200, spread:0.00015,entry:1.0850,  sl:1.0820,  tp:1.0910,  note:"Standart lot 100.000 birim. Fiyat farkı doğrudan USD bazlı kâr/zarara çevrilir." },
+  GBPUSD:  { contractSize:100000, leverage:200, spread:0.00018,entry:1.2650,  sl:1.2610,  tp:1.2730,  note:"Standart lot 100.000 birim. GBP çiftlerinde spread genelde EURUSD'den geniştir." },
+  USDJPY:  { contractSize:100000, leverage:200, spread:0.015,  entry:151.20,  sl:150.80,  tp:152.20,  note:"Kâr/zarar gerçekte JPY bazlıdır; burada sadeleştirilmiş USD hesabı gösterilir." },
+  USDTRY:  { contractSize:100000, leverage:10,  spread:0.01,   entry:34.10,   sl:33.90,   tp:34.70,   note:"Kâr/zarar gerçekte TL bazlıdır; burada sadeleştirilmiş USD hesabı gösterilir." },
+  NAS100:  { contractSize:1,      leverage:50,  spread:2,      entry:19500,   sl:19440,   tp:19620,   note:"Endeks kontratlarında 1 puan = 1 birim × lot kabul edilir. Broker'ınıza göre çarpanı değiştirin." },
+  DAX40:   { contractSize:1,      leverage:50,  spread:3,      entry:18500,   sl:18400,   tp:18750,   note:"1 puan = 1 birim × lot varsayılır. Broker'ınıza göre çarpanı değiştirin." },
+  USOIL:   { contractSize:100,    leverage:20,  spread:0.05,   entry:78.40,   sl:77.40,   tp:80.40,   note:"Mini WTI kontratı 100 varil varsayılmıştır (standart kontrat 1000 varil olabilir)." },
+  BIST100: { contractSize:10,     leverage:5,   spread:1,      entry:9800,    sl:9700,    tp:10000,   note:"BIST vadeli kontratlarında kontrat büyüklüğü brokerdan brokere değişir, elle düzeltin." },
+  CUSTOM:  { contractSize:100000, leverage:100, spread:0,      entry:0,       sl:0,       tp:0,       note:"Tüm parametreleri enstrümanınıza göre elle girin." }
+};
+const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ TICKER TAPE (signature element) ============ */
+// tdSymbol = Cloudflare Function'ın Twelve Data'ya sorduğu isim.
+// Not: NAS100/DAX40/USOIL/BIST100 ücretsiz planda desteklenmediği ve
+// hiç yenilenmediği için şeritten tamamen kaldırıldı.
+const tickerSymbols = [
+  {sym:'XAUUSD', icon:'🟡', tdSymbol:'XAU/USD', price:2384.20},
+  {sym:'XAGUSD', icon:'⚪', tdSymbol:'XAG/USD', price:28.41},
+  {sym:'BTCUSD', icon:'₿', tdSymbol:'BTC/USD', price:64120.00},
+  {sym:'ETHUSD', icon:'Ξ', tdSymbol:'ETH/USD', price:3412.00},
+  {sym:'EURUSD', icon:'💱', tdSymbol:'EUR/USD', price:1.0854},
+  {sym:'GBPUSD', icon:'💱', tdSymbol:'GBP/USD', price:1.2658},
+  {sym:'USDJPY', icon:'💱', tdSymbol:'USD/JPY', price:151.24},
+  {sym:'USDTRY', icon:'₺', tdSymbol:'USD/TRY', price:34.12}
+];
+// LIVE_MODE: gerçek API canlıya alınınca true yapılır (bkz. fetchLivePrices)
+let LIVE_MODE = true;
+let fallbackMode = false; // API tamamen başarısız olursa şeride görsel hareket vermek için
+function renderTicker(){
+  const track = document.getElementById('tickerTrack');
+  const buildSet = () => tickerSymbols.map(t=>{
+    const dir = t.dir || 'up';
+    const arrow = dir==='up' ? '▲' : '▼';
+    const cls = dir==='up' ? 'up' : 'down';
+    return `<span class="ticker-item">${t.icon} <b>${t.sym}</b><span class="${cls}">${arrow} ${formatPrice(t.price)}</span></span>`;
+  }).join('');
+  track.innerHTML = buildSet() + buildSet();
+}
+function formatPrice(p){
+  if(p>1000) return p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return p.toLocaleString('en-US',{minimumFractionDigits:4,maximumFractionDigits:4});
+}
+function tickTickerFake(){
+  if(!fallbackMode) return; // canlı veri çalışıyorsa şeride sahte hareket verme
+  tickerSymbols.forEach(t=>{
+    const vol = t.price>1000 ? t.price*0.0006 : t.price*0.0009;
+    const delta = (Math.random()-0.5)*vol;
+    t.price = Math.max(0.0001, t.price + delta);
+    t.dir = delta>=0 ? 'up' : 'down';
+  });
+  renderTicker();
+}
+
+// ============ CANLI FİYAT ÇEKME (Cloudflare Function -> Twelve Data) ============
+// Site Cloudflare Pages'e deploy edilip TWELVE_DATA_KEY ortam değişkeni tanımlandığında
+// bu fonksiyon /get-prices adresinden gerçek fiyatları çeker.
+async function fetchLivePrices(){
+  try{
+    const res = await fetch('/get-prices');
+    if(!res.ok){
+      // Örn. 429 = dakikalık kredi limiti aşıldı
+      throw new Error('Function/API hata döndü: ' + res.status);
+    }
+    const data = await res.json();
+
+    let successCount = 0;
+    let attemptCount = 0;
+    tickerSymbols.forEach(t=>{
+      if(!t.tdSymbol) return; // bu sembol zaten hep simüle - dokunma
+      attemptCount++;
+      const entry = data[t.tdSymbol];
+      // Twelve Data hatalı/limitli sembollerde {code, message} döndürür, {price} DEĞİL.
+      if(entry && entry.price && !entry.code){
+        const newPrice = parseFloat(entry.price);
+        if(!isNaN(newPrice) && newPrice>0){
+          t.dir = newPrice >= t.price ? 'up' : 'down';
+          t.price = newPrice;
+          t.isLive = true;
+          successCount++;
+        }
+      } else {
+        t.isLive = false; // bu sembol için canlı veri gelmedi, eski değerde donuk kalır
+      }
+    });
+    renderTicker();
+
+    const label = document.querySelector('.ticker-label');
+    if(successCount === 0){
+      fallbackMode = true;
+      label.innerHTML = '<span class="warn-dot"></span>Simüle Veri (API kota/limit)';
+    } else if(successCount < attemptCount){
+      fallbackMode = false;
+      label.innerHTML = '<span class="warn-dot" style="background:var(--amber);box-shadow:0 0 5px var(--amber);"></span>Kısmi Canlı Veri';
+    } else {
+      fallbackMode = false;
+      label.innerHTML = '<span class="warn-dot" style="background:var(--teal);box-shadow:0 0 5px var(--teal);"></span>Canlı Veri';
+    }
+  }catch(err){
+    console.warn('Canlı fiyat alınamadı, simülasyona devam ediliyor:', err.message);
+    fallbackMode = true;
+    document.querySelector('.ticker-label').innerHTML = '<span class="warn-dot"></span>Simüle Veri (bağlantı hatası)';
+  }
+}
+
+renderTicker();
+setInterval(tickTickerFake, 2200); // NAS100/DAX40/USOIL/BIST100 hep simüle - sürekli çalışır
+if(LIVE_MODE){
+  fetchLivePrices();
+  // 5 dakikada bir: ücretsiz plan günlük 800 kredi kotasını güvenle korumak için
+  setInterval(fetchLivePrices, 300000);
+}
+
+/* ============ TOAST ============ */
+function showToast(msg, type){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type==='error'?' error':type==='success'?' success':'');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(()=>{
+    t.style.transition='opacity .3s, transform .3s';
+    t.style.opacity='0'; t.style.transform='translateY(6px)';
+    setTimeout(()=>t.remove(),300);
+  }, 3000);
+}
+
+/* ============ BOOT SEQUENCE ============ */
+function runBoot(){
+  const boot = document.getElementById('bootScreen');
+  if(REDUCE_MOTION){ boot.style.display='none'; return; }
+  requestAnimationFrame(()=> boot.classList.add('animate'));
+  setTimeout(()=>{
+    boot.style.transition='opacity .6s ease';
+    boot.style.opacity='0';
+    setTimeout(()=>{ boot.style.display='none'; }, 600);
+  }, 2700);
+}
+runBoot();
+
+/* ============ CLOCK & SESSIONS ============ */
+function updateClock(){
+  const now = new Date();
+  try{
+    const istStr = now.toLocaleTimeString('tr-TR', {timeZone:'Europe/Istanbul', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clockIst').textContent = istStr;
+  }catch(e){
+    document.getElementById('clockIst').textContent = now.toLocaleTimeString('tr-TR');
+  }
+  const h = now.getUTCHours();
+  document.getElementById('sessAsia').classList.toggle('active', h>=0 && h<9);
+  document.getElementById('sessLondon').classList.toggle('active', h>=8 && h<17);
+  document.getElementById('sessNY').classList.toggle('active', h>=13 && h<22);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ============ NUMBER ANIMATION ============ */
+function animateNumber(el, from, to, formatter, duration){
+  duration = duration || 500;
+  if(REDUCE_MOTION || !isFinite(from)){ el.textContent = formatter(to); return; }
+  const start = performance.now();
+  function step(now){
+    const t = Math.min(1, (now-start)/duration);
+    const eased = 1 - Math.pow(1-t, 3);
+    el.textContent = formatter(from + (to-from)*eased);
+    if(t<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ============ CSV EXPORT ============ */
+function downloadCSV(filename, rows){
+  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('İndirildi: ' + filename, 'success');
+}
+function exportJournal(){
+  if(!state.journal.length){ showToast('Dışa aktarılacak işlem yok.', 'error'); return; }
+  const rows = [['Parite','Lot','Risk $','Margin $','R:R','Hedef Kar $','Maks Zarar $']];
+  state.journal.forEach(r=> rows.push([r.pairKey, r.lotSize.toFixed(2), r.riskAmount.toFixed(2), r.margin.toFixed(2), '1:'+r.rrRatio.toFixed(2), r.targetProfit.toFixed(2), r.maxLoss.toFixed(2)]));
+  downloadCSV('nox_journal.csv', rows);
+}
+function exportVault(){
+  if(!state.vaultHistory.length){ showToast('Dışa aktarılacak kasa hareketi yok.', 'error'); return; }
+  const rows = [['Tarih','Tür','Miktar','Açıklama','Bakiye']];
+  state.vaultHistory.forEach(h=> rows.push([h.date, h.type==='deposit'?'Giris':'Cikis', h.amount.toFixed(2), h.desc, h.resultingBalance.toFixed(2)]));
+  downloadCSV('nox_kasa.csv', rows);
+}
+function exportSim(){
+  if(!state.simTrades.length){ showToast('Dışa aktarılacak simülasyon işlemi yok.', 'error'); return; }
+  const rows = [['#','Durum','Risk %','R Orani','Kar-Zarar $','Islem Bakiyesi']];
+  state.simTrades.slice().reverse().forEach(t=> rows.push([t.idx, t.result, t.riskPct, t.rRatio.toFixed(2), t.pnl.toFixed(2), t.balance.toFixed(2)]));
+  downloadCSV('nox_backtest.csv', rows);
+}
+
+/* ============ GATE ============ */
+async function enterTerminal(){
+  const pinVal = document.getElementById('pinInput').value.trim();
+  if(!pinVal){ showToast('PIN girmeden giriş yapılamaz.', 'error'); return; }
+
+  const btn = document.getElementById('gateEnterBtn');
+  btn.disabled = true; btn.textContent = 'Doğrulanıyor...';
+
+  try{
+    const res = await fetch('/data', { headers:{ 'x-nox-pin': pinVal } });
+    if(res.status===401){
+      showToast('Hatalı PIN.', 'error');
+      return;
+    }
+    if(!res.ok){
+      const errBody = await res.json().catch(()=>({}));
+      showToast('Giriş yapılamadı: ' + (errBody.error || ('HTTP '+res.status)), 'error');
+      return;
+    }
+    // PIN doğrulandı - şimdi içeri al
+    state.pin = pinVal;
+    const data = await res.json();
+    document.getElementById('gateScreen').style.display='none';
+    document.getElementById('appScreen').style.display='block';
+    applyRemoteData(data);
+    if(state.username === 'GUEST'){
+      const name = prompt('İlk girişin! Terminalde görünecek adını yaz:');
+      if(name && name.trim()){
+        state.username = name.trim().toUpperCase();
+        document.getElementById('userDisplay').textContent = state.username;
+        scheduleSave();
+      }
+    }
+    showToast('Hoş geldin, ' + state.username, 'success');
+  }catch(err){
+    showToast('Giriş yapılamadı: ' + (err && err.message ? err.message : 'bilinmeyen hata'), 'error'); console.error('enterTerminal hatası:', err);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Terminale Giriş Yap';
+  }
+}
+function renameUser(){
+  const name = prompt('Yeni adını yaz:', state.username==='GUEST' ? '' : state.username);
+  if(name && name.trim()){
+    state.username = name.trim().toUpperCase();
+    document.getElementById('userDisplay').textContent = state.username;
+    showToast('İsim güncellendi ✓', 'success');
+    scheduleSave();
+  }
+}
+function showGate(){
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('gateScreen').style.display='flex';
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinInput').focus();
+}
+document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') enterTerminal(); });
+
+/* ============ BULUT SENKRONİZASYONU (JSONBin.io üzerinden) ============ */
+let saveTimer = null;
+function scheduleSave(){
+  if(!state.pin) return; // PIN yoksa buluta kaydetmeyi deneme
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveRemoteData, 700); // ardışık işlemleri tek istekte topla
+}
+async function saveRemoteData(){
+  if(!state.pin) return;
+  const payload = {
+    username: state.username,
+    vaultBalance: state.vaultBalance,
+    vaultHistory: state.vaultHistory,
+    journal: state.journal,
+    tradeJournal: state.tradeJournal,
+    dailyLogs: state.dailyLogs,
+    simBalance: state.simBalance,
+    simStartBalance: state.simStartBalance,
+    simTrades: state.simTrades,
+    simStats: state.simStats,
+    savedAt: new Date().toISOString()
+  };
+  try{
+    const res = await fetch('/data', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-nox-pin': state.pin },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok){
+      if(res.status===401) showToast('PIN hatalı — veriler kaydedilemedi.', 'error');
+      else {
+        const errBody = await res.json().catch(()=>({}));
+        showToast('Kaydedilemedi: ' + (errBody.error || ('HTTP '+res.status)), 'error');
+      }
+    }
+  }catch(err){
+    showToast('Buluta kaydedilemedi: bağlantı sorunu.', 'error');
+  }
+}
+function applyRemoteData(data){
+  if(!data || !Object.keys(data).length) return;
+  if(state.username==='GUEST' && data.username){
+    state.username = data.username;
+    document.getElementById('userDisplay').textContent = state.username;
+  }
+  state.vaultHistory = Array.isArray(data.vaultHistory) ? data.vaultHistory : state.vaultHistory;
+  // Eski kayıtlarda id olmayabilir - yoksa ata ve bakiyeyi yeniden hesapla
+  let needsRecompute = false;
+  state.vaultHistory.forEach(h=>{ if(!h.id){ h.id = Date.now() + Math.random(); needsRecompute = true; } });
+  if(needsRecompute || Array.isArray(data.vaultHistory)) recomputeVaultBalances();
+  state.journal = Array.isArray(data.journal) ? data.journal : state.journal;
+  state.tradeJournal = Array.isArray(data.tradeJournal) ? data.tradeJournal : state.tradeJournal;
+  state.dailyLogs = Array.isArray(data.dailyLogs) ? data.dailyLogs : state.dailyLogs;
+  state.simBalance = typeof data.simBalance==='number' ? data.simBalance : state.simBalance;
+  state.simStartBalance = typeof data.simStartBalance==='number' ? data.simStartBalance : state.simStartBalance;
+  state.simTrades = Array.isArray(data.simTrades) ? data.simTrades : state.simTrades;
+  state.simStats = data.simStats || state.simStats;
+  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderDailyPerf();
+  resetTJForm();
+  resetDailyLogForm();
+}
+
+/* ============ TABS ============ */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='backtest') setTimeout(drawEquityCurve, 30);
+  if(name==='dailyperf') setTimeout(drawDailyBalanceChart, 30);
+}
+// F1-F4 ile sekmeler arası geçiş
+const TAB_FKEY_MAP = { F1:'risk', F2:'tradejournal', F3:'vault', F4:'backtest', F5:'dailyperf' };
+const TAB_DIGIT_MAP = { '1':'risk', '2':'tradejournal', '3':'vault', '4':'backtest', '5':'dailyperf' };
+document.addEventListener('keydown', e=>{
+  if(document.getElementById('appScreen').style.display === 'none') return;
+  if(TAB_FKEY_MAP[e.key]){
+    e.preventDefault();
+    switchTab(TAB_FKEY_MAP[e.key]);
+    return;
+  }
+  // Bazı laptoplarda F-tuşları donanım fonksiyonlarına (ses/parlaklık) atanmış
+  // olabiliyor ve tarayıcıya hiç ulaşmıyor. Yazı kutusunda değilken düz
+  // 1-2-3-4 tuşlarını da yedek kısayol olarak tanı.
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  const isTyping = ['INPUT','TEXTAREA','SELECT'].includes(tag);
+  if(!isTyping && TAB_DIGIT_MAP[e.key]){
+    switchTab(TAB_DIGIT_MAP[e.key]);
+  }
+});
+
+/* ============ RISK ENGINE ============ */
+function applyPairTemplate(){
+  const key = document.getElementById('pairSelect').value;
+  const p = PAIRS[key];
+  document.getElementById('contractSize').value = p.contractSize;
+  document.getElementById('leverageVal').value = p.leverage;
+  document.getElementById('spreadVal').value = p.spread;
+  if(key!=='CUSTOM'){
+    document.getElementById('entryPrice').value = p.entry;
+    document.getElementById('slPrice').value = p.sl;
+    document.getElementById('tpPrice').value = p.tp;
+  }
+  document.getElementById('pairNote').textContent = p.note;
+  updateGauge();
+}
+function setRiskPct(v){
+  document.getElementById('riskPct').value = v;
+  document.querySelectorAll('#pctQuickRow .pct-btn').forEach(b=>b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  updateGauge();
+}
+function updateGauge(){
+  const pct = num('riskPct');
+  const clamped = Math.max(0, Math.min(pct, 5));
+  const percent = (clamped/5*100);
+  const marker = document.getElementById('gaugeMarker');
+  if(marker) marker.style.left = 'calc(' + percent + '% - 1.5px)';
+
+  const fill = document.getElementById('gaugeFill');
+  if(fill){
+    fill.style.clipPath = 'inset(0 ' + (100-percent) + '% 0 0)';
+    let glowColor = 'var(--teal)';
+    if(percent >= 60) glowColor = 'var(--red)';
+    else if(percent >= 20) glowColor = 'var(--amber)';
+    fill.style.filter = 'drop-shadow(0 0 5px ' + glowColor + ') drop-shadow(0 0 10px ' + glowColor + ')';
+  }
+}
+document.getElementById('riskPct').addEventListener('input', updateGauge);
+function num(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function fmt(n){
+  const sign = n<0 ? '-' : '';
+  return sign + '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function computeRisk(){
+  const balance = num('accBalance');
+  const riskPct = num('riskPct');
+  const entry = num('entryPrice');
+  const sl = num('slPrice');
+  const tp = num('tpPrice');
+  const spread = num('spreadVal');
+  const leverage = num('leverageVal') || 1;
+  const contractSize = num('contractSize');
+  const pairKey = document.getElementById('pairSelect').value;
+
+  const distSL = Math.abs(entry - sl);
+  const distTP = Math.abs(tp - entry);
+
+  if(distSL === 0 || contractSize === 0 || balance === 0){
+    return null;
+  }
+
+  const riskAmount = balance * (riskPct/100);
+  const valuePerLot = distSL * contractSize;
+  const lotSize = riskAmount / valuePerLot;
+  const margin = (entry * contractSize * lotSize) / leverage;
+  const rrRatio = distTP / distSL;
+  const spreadCost = spread * contractSize * lotSize;
+  const targetProfit = Math.max(0, (riskAmount * rrRatio) - spreadCost);
+  const maxLoss = riskAmount + spreadCost;
+
+  return { pairKey, balance, riskPct, riskAmount, lotSize, margin, rrRatio, targetProfit, maxLoss, entry, sl, tp, spread, leverage, contractSize };
+}
+state.lastOutputs = {riskAmount:0, lot:0, margin:0, targetProfit:0, maxLoss:0};
+function calculateAndLog(){
+  const r = computeRisk();
+  if(!r){
+    showToast('Lütfen geçerli bir Entry / Stop Loss ve Contract Size girin (Entry ile SL aynı olamaz).', 'error');
+    return;
+  }
+  const L = state.lastOutputs;
+  animateNumber(document.getElementById('outRiskAmt'), L.riskAmount, r.riskAmount, fmt);
+  animateNumber(document.getElementById('outLot'), L.lot, r.lotSize, v=>v.toFixed(2)+' Lot');
+  animateNumber(document.getElementById('outMargin'), L.margin, r.margin, fmt);
+  document.getElementById('outRR').textContent = '1 : ' + r.rrRatio.toFixed(2);
+  animateNumber(document.getElementById('outTP'), L.targetProfit, r.targetProfit, v=>'+'+fmt(v));
+  animateNumber(document.getElementById('outSL'), L.maxLoss, r.maxLoss, v=>'-'+fmt(v));
+  state.lastOutputs = {riskAmount:r.riskAmount, lot:r.lotSize, margin:r.margin, targetProfit:r.targetProfit, maxLoss:r.maxLoss};
+
+  state.journal.unshift(r);
+  renderJournal();
+  showToast('İşlem günlüğe eklendi ✓', 'success');
+  scheduleSave();
+}
+function renderJournal(){
+  const body = document.getElementById('journalBody');
+  if(state.journal.length===0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="7">Henüz işlem eklenmedi. Hesapla &amp; Günlüğe Ekle butonunu kullanın.</td></tr>';
+    return;
+  }
+  body.innerHTML = state.journal.map((r,i)=>`
+    <tr>
+      <td>${r.pairKey}</td>
+      <td>${r.lotSize.toFixed(2)}</td>
+      <td>${fmt(r.riskAmount)}</td>
+      <td>${fmt(r.margin)}</td>
+      <td>1:${r.rrRatio.toFixed(2)}</td>
+      <td class="win">${fmt(r.targetProfit)}</td>
+      <td>
+        <button class="btn-ghost-sm" onclick="editJournalRow(${i})">Düzenle</button>
+        <button class="btn-danger-sm" onclick="removeJournal(${i})">Sil</button>
+      </td>
+    </tr>
+  `).join('');
+}
+function editJournalRow(i){
+  const r = state.journal[i];
+  if(!r) return;
+  document.getElementById('pairSelect').value = (r.pairKey in PAIRS) ? r.pairKey : 'CUSTOM';
+  document.getElementById('accBalance').value = r.balance;
+  document.getElementById('riskPct').value = r.riskPct;
+  document.getElementById('entryPrice').value = r.entry;
+  document.getElementById('slPrice').value = r.sl;
+  document.getElementById('tpPrice').value = r.tp;
+  document.getElementById('spreadVal').value = r.spread;
+  document.getElementById('leverageVal').value = r.leverage;
+  document.getElementById('contractSize').value = r.contractSize;
+  document.getElementById('pairNote').textContent = (PAIRS[r.pairKey] && r.pairKey in PAIRS) ? PAIRS[r.pairKey].note : PAIRS.CUSTOM.note;
+  updateGauge();
+
+  const recomputed = computeRisk();
+  if(recomputed){
+    document.getElementById('outRiskAmt').textContent = fmt(recomputed.riskAmount);
+    document.getElementById('outLot').textContent = recomputed.lotSize.toFixed(2) + ' Lot';
+    document.getElementById('outMargin').textContent = fmt(recomputed.margin);
+    document.getElementById('outRR').textContent = '1 : ' + recomputed.rrRatio.toFixed(2);
+    document.getElementById('outTP').textContent = '+' + fmt(recomputed.targetProfit);
+    document.getElementById('outSL').textContent = '-' + fmt(recomputed.maxLoss);
+    state.lastOutputs = {riskAmount:recomputed.riskAmount, lot:recomputed.lotSize, margin:recomputed.margin, targetProfit:recomputed.targetProfit, maxLoss:recomputed.maxLoss};
+  }
+  showToast('Kayıt Risk Engine\'e yüklendi — düzenleyip Trade Journal\'a gönderebilirsin.', 'success');
+}
+function removeJournal(i){ state.journal.splice(i,1); renderJournal(); scheduleSave(); }
+
+/* ============ VAULT ============ */
+function setVaultType(type){
+  state.vaultType = type;
+  document.getElementById('radioDeposit').classList.toggle('selected', type==='deposit');
+  document.getElementById('radioWithdraw').classList.toggle('selected', type==='withdraw');
+  document.getElementById('radioWithdraw').classList.toggle('loss-mode', type==='withdraw');
+}
+function recomputeVaultBalances(){
+  const chronological = state.vaultHistory.slice().reverse(); // en eskiden en yeniye
+  let running = 0;
+  chronological.forEach(h=>{
+    running += (h.type==='deposit' ? h.amount : -h.amount);
+    h.resultingBalance = running;
+  });
+  state.vaultBalance = running;
+}
+function processVault(){
+  const amount = parseFloat(document.getElementById('vaultAmount').value);
+  const desc = document.getElementById('vaultDesc').value.trim() || '—';
+  if(!amount || amount<=0){ showToast('Lütfen geçerli bir miktar girin.', 'error'); return; }
+  state.vaultHistory.unshift({
+    id: Date.now(),
+    date: new Date().toLocaleDateString('tr-TR'),
+    type: state.vaultType, amount, desc
+  });
+  recomputeVaultBalances();
+  document.getElementById('vaultAmount').value='';
+  document.getElementById('vaultDesc').value='';
+  renderVault();
+  showToast('Kasa güncellendi ✓', 'success');
+  scheduleSave();
+}
+function renderVault(){
+  document.getElementById('vaultBalanceDisplay').textContent = fmt(state.vaultBalance);
+  const body = document.getElementById('vaultBody');
+  if(state.vaultHistory.length===0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">Kasa hareketi bulunmuyor.</td></tr>';
+    return;
+  }
+  const sortedHistory = state.vaultHistory.slice().sort((a,b)=> (b.pinned?1:0) - (a.pinned?1:0));
+  body.innerHTML = sortedHistory.map(h=>`
+    <tr>
+      <td>${h.pinned?'📌 ':''}${escapeHtml(h.date)}</td>
+      <td class="${h.type==='deposit'?'win':'loss'}">${h.type==='deposit'?'Giriş (+)':'Çıkış (-)'}</td>
+      <td class="${h.type==='deposit'?'win':'loss'}">${h.type==='deposit'?'+':'-'}${fmt(h.amount)}</td>
+      <td>${escapeHtml(h.desc)}</td>
+      <td>${fmt(h.resultingBalance)}</td>
+      <td>
+        <button class="btn-ghost-sm" onclick="openVaultModal(${h.id})">Düzenle</button>
+        <button class="btn-danger-sm" onclick="quickDeleteVault(${h.id})">Sil</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let currentVaultEntry = null;
+let vmType = 'deposit';
+function openVaultModal(id){
+  const h = state.vaultHistory.find(x=>x.id===id);
+  if(!h) return;
+  currentVaultEntry = h;
+  vmType = h.type;
+  document.getElementById('vaultPinBtn').classList.toggle('pinned', !!h.pinned);
+  document.getElementById('vaultModalTitle').textContent = 'Kasa Hareketi Düzenle';
+  document.getElementById('vaultModalBody').innerHTML = `
+    <div class="field"><label>Tarih</label><input type="text" id="vm_date" value="${escapeHtml(h.date)}"></div>
+    <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Tür</label>
+    <div class="radio-row" style="margin-bottom:14px;">
+      <div class="radio-opt ${h.type==='deposit'?'selected':''}" id="vm_typeDeposit" onclick="setVMType('deposit')">Para Girişi (+)</div>
+      <div class="radio-opt ${h.type==='withdraw'?'selected loss-mode':''}" id="vm_typeWithdraw" onclick="setVMType('withdraw')">Para Çıkışı (-)</div>
+    </div>
+    <div class="field"><label>Miktar ($)</label><input type="number" id="vm_amount" step="0.01" value="${h.amount}"></div>
+    <div class="field"><label>Açıklama</label><input type="text" id="vm_desc" value="${escapeHtml(h.desc)}"></div>
+    <div class="field-note" style="text-align:center;margin-top:2px;">Üstteki 💾 ile kaydet, 🗑️ ile sil.</div>
+  `;
+  document.getElementById('vaultModalOverlay').classList.add('open');
+}
+function setVMType(type){
+  vmType = type;
+  document.getElementById('vm_typeDeposit').classList.toggle('selected', type==='deposit');
+  document.getElementById('vm_typeWithdraw').classList.toggle('selected', type==='withdraw');
+  document.getElementById('vm_typeWithdraw').classList.toggle('loss-mode', type==='withdraw');
+}
+function saveVaultModalEdit(){
+  if(!currentVaultEntry) return;
+  const amount = parseFloat(document.getElementById('vm_amount').value);
+  if(!amount || amount<=0){ showToast('Geçerli bir miktar girin.', 'error'); return; }
+  currentVaultEntry.date = document.getElementById('vm_date').value.trim() || currentVaultEntry.date;
+  currentVaultEntry.type = vmType;
+  currentVaultEntry.amount = amount;
+  currentVaultEntry.desc = document.getElementById('vm_desc').value.trim() || '—';
+  recomputeVaultBalances();
+  renderVault();
+  scheduleSave();
+  showToast('Kasa hareketi güncellendi ✓', 'success');
+  closeVaultModal();
+}
+function deleteCurrentVaultEntry(){
+  if(!currentVaultEntry) return;
+  if(!confirm('Bu kasa hareketini silmek istediğine emin misin?')) return;
+  state.vaultHistory = state.vaultHistory.filter(h=>h.id!==currentVaultEntry.id);
+  recomputeVaultBalances();
+  renderVault();
+  scheduleSave();
+  showToast('Kasa hareketi silindi', 'success');
+  closeVaultModal();
+}
+function quickDeleteVault(id){
+  if(!confirm('Bu kasa hareketini silmek istediğine emin misin?')) return;
+  state.vaultHistory = state.vaultHistory.filter(h=>h.id!==id);
+  recomputeVaultBalances();
+  renderVault();
+  scheduleSave();
+  showToast('Kasa hareketi silindi', 'success');
+}
+function closeVaultModal(){
+  document.getElementById('vaultModalOverlay').classList.remove('open');
+  currentVaultEntry = null;
+}
+function toggleVaultPin(){
+  if(!currentVaultEntry) return;
+  currentVaultEntry.pinned = !currentVaultEntry.pinned;
+  document.getElementById('vaultPinBtn').classList.toggle('pinned', currentVaultEntry.pinned);
+  renderVault();
+  scheduleSave();
+  showToast(currentVaultEntry.pinned ? 'Hareket pinlendi 📌' : 'Pin kaldırıldı', 'success');
+}
+
+/* ============ BACKTEST / WINRATE SIM ============ */
+function setSimResult(r){
+  state.simResult = r;
+  document.getElementById('radioWin').classList.toggle('selected', r==='WIN');
+  document.getElementById('radioLoss').classList.toggle('selected', r==='LOSS');
+  document.getElementById('radioLoss').classList.toggle('loss-mode', r==='LOSS');
+}
+function addSimTrade(){
+  const riskPct = parseFloat(document.getElementById('simRisk').value);
+  const rRatio = parseFloat(document.getElementById('simR').value);
+  if(!riskPct || riskPct<=0 || !rRatio || rRatio<=0){ showToast('Lütfen geçerli Risk % ve R oranı girin.', 'error'); return; }
+
+  const riskAmount = state.simBalance * (riskPct/100);
+  const pnl = state.simResult==='WIN' ? riskAmount*rRatio : -riskAmount;
+  state.simBalance += pnl;
+
+  state.simStats.total += 1;
+  if(state.simResult==='WIN'){ state.simStats.wins += 1; state.simStats.totalR += rRatio; }
+  else{ state.simStats.totalR -= 1; }
+  state.simStats.netPnl += pnl;
+
+  state.simTrades.unshift({
+    idx: state.simStats.total, result: state.simResult, riskPct, rRatio, pnl, balance: state.simBalance
+  });
+  renderSim();
+  scheduleSave();
+}
+function renderSim(){
+  document.getElementById('simTotal').textContent = state.simStats.total;
+  const wr = state.simStats.total ? (state.simStats.wins/state.simStats.total*100) : 0;
+  document.getElementById('simWinRate').textContent = '%' + wr.toFixed(1);
+  document.getElementById('simTotalR').textContent = state.simStats.totalR.toFixed(1) + ' R';
+  const netEl = document.getElementById('simNetPnl');
+  netEl.textContent = (state.simStats.netPnl>=0?'+':'-') + fmt(Math.abs(state.simStats.netPnl));
+  netEl.className = 'stat-value small ' + (state.simStats.netPnl>=0?'teal':'red');
+  document.getElementById('simBalanceDisplay').value = state.simBalance.toFixed(2);
+
+  const body = document.getElementById('simBody');
+  if(state.simTrades.length===0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">Simülasyon işlemi eklenmedi.</td></tr>';
+    drawEquityCurve();
+    return;
+  }
+  body.innerHTML = state.simTrades.map(t=>`
+    <tr>
+      <td>${t.idx}</td>
+      <td class="${t.result==='WIN'?'win':'loss'}">${t.result==='WIN'?'✅ WIN':'❌ LOSS'}</td>
+      <td>%${t.riskPct}</td>
+      <td>1:${t.rRatio.toFixed(2)}</td>
+      <td class="${t.pnl>=0?'win':'loss'}">${t.pnl>=0?'+':'-'}${fmt(Math.abs(t.pnl))}</td>
+      <td>${fmt(t.balance)}</td>
+    </tr>
+  `).join('');
+  drawEquityCurve();
+}
+function drawEquityCurve(){
+  const canvas = document.getElementById('equityCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 300, h = canvas.clientHeight || 150;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  const startBalance = state.simStartBalance || 10000;
+  const points = [startBalance].concat(state.simTrades.slice().reverse().map(t=>t.balance));
+
+  if(points.length<2){
+    ctx.fillStyle = 'rgba(139,149,165,0.5)';
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.fillText('İşlem eklendikçe eğri burada oluşacak.', 10, h/2);
+    return;
+  }
+  const min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+  const pad = (max-min)*0.18 || (max*0.05) || 10;
+  const yMin = min-pad, yMax = max+pad;
+  const stepX = points.length>1 ? w/(points.length-1) : w;
+  const toY = v => h - ((v-yMin)/(yMax-yMin))*h;
+  const marginR = 6;
+
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.lineTo(w-marginR,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(240,167,41,0.24)');
+  grad.addColorStop(1,'rgba(240,167,41,0)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.setLineDash([3,4]);
+  ctx.strokeStyle='rgba(139,149,165,0.45)';
+  ctx.lineWidth=1;
+  const baseY = toY(startBalance);
+  ctx.beginPath(); ctx.moveTo(0,baseY); ctx.lineTo(w,baseY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle = '#f0a729'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+  points.forEach((p,i)=>{
+    const x=Math.min(i*stepX, w-marginR), y=toY(p);
+    const isLast = i===points.length-1;
+    ctx.beginPath();
+    ctx.arc(x,y, isLast?4:2, 0, Math.PI*2);
+    ctx.fillStyle = isLast ? '#1fe0c4' : '#f0a729';
+    ctx.fill();
+  });
+}
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('tab-backtest').classList.contains('active')) drawEquityCurve();
+  if(document.getElementById('tab-dailyperf').classList.contains('active')) drawDailyBalanceChart();
+});
+function resetSimulation(){
+  if(state.simTrades.length && !confirm('Simülasyonu sıfırlamak istediğinize emin misiniz?')) return;
+  state.simBalance = state.vaultBalance || 10000;
+  state.simStartBalance = state.simBalance;
+  state.simTrades = [];
+  state.simStats = { total:0, wins:0, totalR:0, netPnl:0 };
+  renderSim();
+  scheduleSave();
+}
+function updateSimBalanceManual(value){
+  const v = parseFloat(value);
+  if(isNaN(v) || v<0) return;
+  state.simBalance = v;
+  if(state.simTrades.length===0) state.simStartBalance = v; // henüz işlem yoksa başlangıç noktasını da güncelle
+  drawEquityCurve();
+  scheduleSave();
+}
+
+/* ============ TRADE JOURNAL ============ */
+let tjDirection = 'LONG';
+let tjScreenshotData = null;
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function setTJDirection(dir){
+  tjDirection = dir;
+  document.getElementById('tj_dirLong').classList.toggle('selected', dir==='LONG');
+  document.getElementById('tj_dirShort').classList.toggle('selected', dir==='SHORT');
+}
+function handleTJScreenshot(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width*scale);
+      canvas.height = Math.round(img.height*scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      tjScreenshotData = canvas.toDataURL('image/jpeg', 0.72);
+      document.getElementById('tj_screenshotPreview').innerHTML =
+        '<img src="'+tjScreenshotData+'" style="max-width:220px;width:100%;margin-top:8px;border:1px solid var(--line-bright);border-radius:4px;display:block;">';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function resetTJForm(){
+  ['tj_pair','tj_timeframe','tj_entry','tj_sl','tj_tp','tj_tp1','tj_riskPct','tj_riskUsd','tj_rr','tj_be','tj_setup','tj_note','tj_mistake','tj_lesson','tj_score'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('tj_result').value = 'Açık';
+  document.getElementById('tj_date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('tj_screenshot').value = '';
+  document.getElementById('tj_screenshotPreview').innerHTML = '';
+  tjScreenshotData = null;
+  setTJDirection('LONG');
+  document.getElementById('tj_no').value = '#' + (state.tradeJournal.length + 1);
+}
+function addTradeJournalEntry(){
+  const pair = document.getElementById('tj_pair').value.trim();
+  if(!pair){ showToast('Parite alanını doldurmalısın.', 'error'); return; }
+  const entry = {
+    id: Date.now(),
+    no: state.tradeJournal.length + 1,
+    date: document.getElementById('tj_date').value || new Date().toISOString().slice(0,10),
+    pair,
+    direction: tjDirection,
+    timeframe: document.getElementById('tj_timeframe').value.trim(),
+    entry: parseFloat(document.getElementById('tj_entry').value) || 0,
+    sl: parseFloat(document.getElementById('tj_sl').value) || 0,
+    tp: parseFloat(document.getElementById('tj_tp').value) || 0,
+    tp1: document.getElementById('tj_tp1').value ? parseFloat(document.getElementById('tj_tp1').value) : null,
+    riskPct: parseFloat(document.getElementById('tj_riskPct').value) || 0,
+    riskUsd: parseFloat(document.getElementById('tj_riskUsd').value) || 0,
+    rr: parseFloat(document.getElementById('tj_rr').value) || 0,
+    be: document.getElementById('tj_be').value ? parseFloat(document.getElementById('tj_be').value) : null,
+    result: document.getElementById('tj_result').value,
+    setup: document.getElementById('tj_setup').value.trim(),
+    note: document.getElementById('tj_note').value.trim(),
+    mistake: document.getElementById('tj_mistake').value.trim(),
+    lesson: document.getElementById('tj_lesson').value.trim(),
+    score: document.getElementById('tj_score').value !== '' ? parseInt(document.getElementById('tj_score').value) : null,
+    screenshot: tjScreenshotData
+  };
+  state.tradeJournal.unshift(entry);
+  renderTradeJournal();
+  resetTJForm();
+  showToast('İşlem Trade Journal\'a kaydedildi ✓', 'success');
+  scheduleSave();
+}
+function deleteTJEntry(id){
+  state.tradeJournal = state.tradeJournal.filter(e=>e.id!==id);
+  renderTradeJournal();
+  scheduleSave();
+}
+let currentModalEntry = null;
+let tjmDirection = 'LONG';
+let tjmScreenshotData = null;
+
+function tjResultClass(result){
+  if(result==='TP') return 'res-win';
+  if(result==='SL') return 'res-loss';
+  if(result==='Açık') return 'res-wait';
+  return '';
+}
+function renderTradeJournal(){
+  const wrap = document.getElementById('tradeJournalList');
+  if(!state.tradeJournal.length){
+    wrap.innerHTML = '<div class="field-note" style="text-align:center;padding:24px;">Henüz işlem kaydı yok.</div>';
+    return;
+  }
+  const sorted = state.tradeJournal.slice().sort((a,b)=> (b.pinned?1:0) - (a.pinned?1:0));
+  wrap.innerHTML = '<div class="tj-grid">' + sorted.map(e=>`
+    <div class="tj-card ${tjResultClass(e.result)}" onclick="openTJModal(${e.id})">
+      ${e.screenshot
+        ? `<img class="tj-card-img" src="${e.screenshot}" loading="lazy">`
+        : `<div class="tj-card-noimg">📔</div>`}
+      <div class="tj-card-body">
+        <div class="tj-card-top"><span>${e.pinned?'📌 ':''}#${e.no}</span><span>${escapeHtml(e.date)}</span></div>
+        <div class="tj-card-pair">${escapeHtml(e.pair)}</div>
+        <div class="tj-card-meta">
+          <span class="tj-card-dir ${e.direction==='LONG'?'long':'short'}">${e.direction==='LONG'?'🟢 LONG':'🔴 SHORT'}</span>
+          ${e.score!=null ? `<span class="tj-card-score">${e.score}/10</span>` : `<span style="color:var(--text-dim)">${escapeHtml(e.result)}</span>`}
+        </div>
+      </div>
+    </div>
+  `).join('') + '</div>';
+}
+function setTJMDirection(dir){
+  tjmDirection = dir;
+  document.getElementById('tjm_dirLong').classList.toggle('selected', dir==='LONG');
+  document.getElementById('tjm_dirShort').classList.toggle('selected', dir==='SHORT');
+}
+function handleTJModalScreenshot(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width*scale);
+      canvas.height = Math.round(img.height*scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      tjmScreenshotData = canvas.toDataURL('image/jpeg', 0.72);
+      const imgEl = document.getElementById('tjm_screenshotImg');
+      if(imgEl){ imgEl.src = tjmScreenshotData; }
+      showToast('Görüntü güncellendi — Kaydet\'e basmayı unutma.', 'success');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function openTJModal(id){
+  const e = state.tradeJournal.find(x=>x.id===id);
+  if(!e) return;
+  currentModalEntry = e;
+  tjmDirection = e.direction;
+  tjmScreenshotData = e.screenshot || null;
+  document.getElementById('tjPinBtn').classList.toggle('pinned', !!e.pinned);
+  document.getElementById('tjModalTitle').textContent = '#'+e.no+' · '+e.pair;
+  document.getElementById('tjModalBody').innerHTML = `
+    ${e.screenshot ? `<img id="tjm_screenshotImg" src="${e.screenshot}" onclick="openCurrentScreenshotFullsize()">` : ''}
+    <div class="field"><label>📸 Görüntü ${e.screenshot?'Değiştir':'Ekle'}</label><input type="file" id="tjm_screenshot" accept="image/*" onchange="handleTJModalScreenshot(event)"></div>
+    <div class="field"><label>Tarih</label><input type="date" id="tjm_date" value="${e.date||''}"></div>
+    <div class="field"><label>Parite</label><input type="text" id="tjm_pair" value="${escapeHtml(e.pair)}"></div>
+    <div class="field"><label>Zaman Dilimi</label><input type="text" id="tjm_timeframe" value="${escapeHtml(e.timeframe||'')}"></div>
+    <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Yön</label>
+    <div class="radio-row" style="margin-bottom:12px;">
+      <div class="radio-opt ${e.direction==='LONG'?'selected':''}" id="tjm_dirLong" onclick="setTJMDirection('LONG')">🟢 LONG</div>
+      <div class="radio-opt ${e.direction==='SHORT'?'selected':''}" id="tjm_dirShort" onclick="setTJMDirection('SHORT')">🔴 SHORT</div>
+    </div>
+    <div class="field"><label>Giriş</label><input type="number" id="tjm_entry" step="0.00001" value="${e.entry||''}"></div>
+    <div class="field"><label>Stop Loss</label><input type="number" id="tjm_sl" step="0.00001" value="${e.sl||''}"></div>
+    <div class="field"><label>Take Profit</label><input type="number" id="tjm_tp" step="0.00001" value="${e.tp||''}"></div>
+    <div class="field"><label>TP1</label><input type="number" id="tjm_tp1" step="0.00001" value="${e.tp1??''}"></div>
+    <div class="field"><label>BE</label><input type="number" id="tjm_be" step="0.00001" value="${e.be??''}"></div>
+    <div class="field"><label>Risk %</label><input type="number" id="tjm_riskPct" step="0.1" value="${e.riskPct||''}"></div>
+    <div class="field"><label>Risk $</label><input type="number" id="tjm_riskUsd" step="0.01" value="${e.riskUsd||''}"></div>
+    <div class="field"><label>RR</label><input type="number" id="tjm_rr" step="0.01" value="${e.rr||''}"></div>
+    <div class="field"><label>Sonuç</label>
+      <select id="tjm_result">
+        <option value="Açık" ${e.result==='Açık'?'selected':''}>Açık</option>
+        <option value="TP" ${e.result==='TP'?'selected':''}>TP</option>
+        <option value="SL" ${e.result==='SL'?'selected':''}>SL</option>
+        <option value="BE" ${e.result==='BE'?'selected':''}>BE</option>
+        <option value="Manuel" ${e.result==='Manuel'?'selected':''}>Manuel Kapatıldı</option>
+      </select>
+    </div>
+    <div class="field"><label>Skor (/10)</label><input type="number" id="tjm_score" min="0" max="10" step="1" value="${e.score??''}"></div>
+    <div class="field"><label>Setup</label><input type="text" id="tjm_setup" value="${escapeHtml(e.setup||'')}"></div>
+    <div class="field"><label>İşlem Notu</label><textarea id="tjm_note" rows="2">${escapeHtml(e.note||'')}</textarea></div>
+    <div class="field"><label>Hata</label><textarea id="tjm_mistake" rows="2">${escapeHtml(e.mistake||'')}</textarea></div>
+    <div class="field"><label>Ders / Çıkarım</label><textarea id="tjm_lesson" rows="2">${escapeHtml(e.lesson||'')}</textarea></div>
+    <div class="field-note" style="text-align:center;margin-top:2px;">Üstteki 💾 ile kaydet, 🗑️ ile sil.</div>
+  `;
+  document.getElementById('tjModalOverlay').classList.add('open');
+}
+function saveTJModalEdit(){
+  if(!currentModalEntry) return;
+  const e = currentModalEntry;
+  e.date = document.getElementById('tjm_date').value || e.date;
+  e.pair = document.getElementById('tjm_pair').value.trim() || e.pair;
+  e.timeframe = document.getElementById('tjm_timeframe').value.trim();
+  e.direction = tjmDirection;
+  e.entry = parseFloat(document.getElementById('tjm_entry').value) || 0;
+  e.sl = parseFloat(document.getElementById('tjm_sl').value) || 0;
+  e.tp = parseFloat(document.getElementById('tjm_tp').value) || 0;
+  e.tp1 = document.getElementById('tjm_tp1').value !== '' ? parseFloat(document.getElementById('tjm_tp1').value) : null;
+  e.be = document.getElementById('tjm_be').value !== '' ? parseFloat(document.getElementById('tjm_be').value) : null;
+  e.riskPct = parseFloat(document.getElementById('tjm_riskPct').value) || 0;
+  e.riskUsd = parseFloat(document.getElementById('tjm_riskUsd').value) || 0;
+  e.rr = parseFloat(document.getElementById('tjm_rr').value) || 0;
+  e.result = document.getElementById('tjm_result').value;
+  e.score = document.getElementById('tjm_score').value !== '' ? parseInt(document.getElementById('tjm_score').value) : null;
+  e.setup = document.getElementById('tjm_setup').value.trim();
+  e.note = document.getElementById('tjm_note').value.trim();
+  e.mistake = document.getElementById('tjm_mistake').value.trim();
+  e.lesson = document.getElementById('tjm_lesson').value.trim();
+  e.screenshot = tjmScreenshotData;
+
+  renderTradeJournal();
+  scheduleSave();
+  showToast('İşlem güncellendi ✓', 'success');
+  closeTJModal();
+}
+function closeTJModal(){
+  document.getElementById('tjModalOverlay').classList.remove('open');
+  currentModalEntry = null;
+}
+function toggleTJPin(){
+  if(!currentModalEntry) return;
+  currentModalEntry.pinned = !currentModalEntry.pinned;
+  document.getElementById('tjPinBtn').classList.toggle('pinned', currentModalEntry.pinned);
+  renderTradeJournal();
+  scheduleSave();
+  showToast(currentModalEntry.pinned ? 'İşlem pinlendi 📌' : 'Pin kaldırıldı', 'success');
+}
+function deleteCurrentTJEntry(){
+  if(!currentModalEntry) return;
+  if(!confirm('Bu işlem kaydını silmek istediğine emin misin?')) return;
+  deleteTJEntry(currentModalEntry.id);
+  closeTJModal();
+}
+function openCurrentScreenshotFullsize(){
+  if(currentModalEntry && currentModalEntry.screenshot) openScreenshotFullsize(currentModalEntry.screenshot);
+}
+function openScreenshotFullsize(dataUrl){
+  // data: URI'yi doğrudan yeni sekmede açmak bazı tarayıcılarda başarısız
+  // olabiliyor (boş/adsız sekme) - bu yüzden gerçek bir Blob URL'e çeviriyoruz.
+  try{
+    const parts = dataUrl.split(',');
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+    const blob = new Blob([u8arr], { type: mime });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+    setTimeout(()=>URL.revokeObjectURL(blobUrl), 60000);
+  }catch(err){
+    window.open(dataUrl, '_blank');
+  }
+}
+function exportTradeJournal(){
+  if(!state.tradeJournal.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
+  const rows = [['No','Tarih','Parite','Yön','Zaman Dilimi','Giris','SL','TP','TP1','Risk %','Risk $','RR','BE','Sonuc','Setup','Not','Hata','Ders','Skor']];
+  state.tradeJournal.forEach(e=> rows.push([e.no,e.date,e.pair,e.direction,e.timeframe,e.entry,e.sl,e.tp,e.tp1??'',e.riskPct,e.riskUsd,e.rr,e.be??'',e.result,e.setup,e.note,e.mistake,e.lesson,e.score??'']));
+  downloadCSV('nox_trade_journal.csv', rows);
+}
+function sendToJournal(){
+  const r = computeRisk();
+  if(!r){ showToast('Önce Risk Engine\'de geçerli bir hesaplama yap.', 'error'); return; }
+  switchTab('tradejournal');
+  document.getElementById('tj_pair').value = r.pairKey;
+  document.getElementById('tj_entry').value = num('entryPrice');
+  document.getElementById('tj_sl').value = num('slPrice');
+  document.getElementById('tj_tp').value = num('tpPrice');
+  document.getElementById('tj_riskPct').value = r.riskPct;
+  document.getElementById('tj_riskUsd').value = r.riskAmount.toFixed(2);
+  document.getElementById('tj_rr').value = r.rrRatio.toFixed(2);
+  const entryP = num('entryPrice'), tpP = num('tpPrice');
+  setTJDirection(tpP >= entryP ? 'LONG' : 'SHORT');
+  showToast('Pozisyon Trade Journal\'a aktarıldı — detayları tamamlayıp kaydet.', 'success');
+}
+
+/* ============ DAILY PERFORMANCE ============ */
+let editingDailyLogId = null;
+
+function radialGaugeSVG(percent, color, size, strokeWidth){
+  size = size || 88; strokeWidth = strokeWidth || 9;
+  const clamped = Math.max(0, Math.min(100, percent));
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - clamped/100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="overflow:visible;">
+    <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="${strokeWidth}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${radius}" fill="none" stroke="${color}" stroke-width="${strokeWidth}"
+      stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+      transform="rotate(-90 ${size/2} ${size/2})" style="filter:drop-shadow(0 0 5px ${color});"/>
+  </svg>`;
+}
+function tierColor(value, goodMin, midMin){
+  if(value >= goodMin) return 'var(--teal)';
+  if(value >= midMin) return 'var(--amber)';
+  return 'var(--red)';
+}
+function computeDailyStats(){
+  const logs = state.dailyLogs;
+  const totalPnl = logs.reduce((s,l)=> s + l.pnl, 0);
+  const winDays = logs.filter(l=> l.pnl > 0);
+  const lossDays = logs.filter(l=> l.pnl < 0);
+  const totalTrades = logs.reduce((s,l)=> s + (l.trades||0), 0);
+  const totalWins = logs.reduce((s,l)=> s + (l.wins||0), 0);
+  const dayWinPct = logs.length ? (winDays.length / logs.length * 100) : 0;
+  const tradeWinPct = totalTrades ? (totalWins / totalTrades * 100) : 0;
+  const grossProfit = winDays.reduce((s,l)=> s + l.pnl, 0);
+  const grossLoss = Math.abs(lossDays.reduce((s,l)=> s + l.pnl, 0));
+  const profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : (grossProfit > 0 ? 3 : 0);
+  const avgWinDay = winDays.length ? (grossProfit / winDays.length) : 0;
+  const avgLossDay = lossDays.length ? (grossLoss / lossDays.length) : 0;
+  const bestDay = logs.length ? Math.max(...logs.map(l=>l.pnl)) : 0;
+  const bestDayPct = grossProfit > 0 ? Math.max(0, bestDay / grossProfit * 100) : 0;
+  return { totalPnl, dayWinPct, tradeWinPct, profitFactor, avgWinDay, avgLossDay, bestDayPct };
+}
+function renderDailyPerf(){
+  const s = computeDailyStats();
+
+  const pnlEl = document.getElementById('perfTotalPnl');
+  pnlEl.textContent = (s.totalPnl>=0?'+':'-') + fmt(Math.abs(s.totalPnl));
+  pnlEl.style.color = s.totalPnl >= 0 ? 'var(--teal)' : 'var(--red)';
+
+  document.getElementById('perfTradeWinGauge').innerHTML =
+    radialGaugeSVG(s.tradeWinPct, tierColor(s.tradeWinPct, 60, 40)) + `<div class="perf-gauge-value">${s.tradeWinPct.toFixed(0)}%</div>`;
+  document.getElementById('perfTradeWinGauge').style.position = 'relative';
+
+  document.getElementById('perfDayWinGauge').innerHTML =
+    radialGaugeSVG(s.dayWinPct, tierColor(s.dayWinPct, 60, 40)) + `<div class="perf-gauge-value">${s.dayWinPct.toFixed(0)}%</div>`;
+  document.getElementById('perfDayWinGauge').style.position = 'relative';
+
+  const pfColor = tierColor(s.profitFactor, 1.5, 1.0);
+  const pfPercent = Math.min(100, (s.profitFactor/3)*100);
+  document.getElementById('perfProfitFactorGauge').innerHTML =
+    radialGaugeSVG(pfPercent, pfColor) + `<div class="perf-gauge-value">${s.profitFactor.toFixed(2)}</div>`;
+  document.getElementById('perfProfitFactorGauge').style.position = 'relative';
+
+  // Burada düşük yüzde iyi (tek güne aşırı bağımlılık riski demek) - bu yüzden ters kademelendirme
+  const bestDayColor = s.bestDayPct <= 30 ? 'var(--teal)' : s.bestDayPct <= 55 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('perfBestDayGauge').innerHTML =
+    radialGaugeSVG(s.bestDayPct, bestDayColor) + `<div class="perf-gauge-value">${s.bestDayPct.toFixed(0)}%</div>`;
+  document.getElementById('perfBestDayGauge').style.position = 'relative';
+
+  const winTotal = s.avgWinDay + s.avgLossDay;
+  const winPct = winTotal > 0 ? (s.avgWinDay/winTotal*100) : 50;
+  document.getElementById('perfWinBar').style.width = winPct + '%';
+  document.getElementById('perfLossBar').style.width = (100-winPct) + '%';
+  document.getElementById('perfAvgWinLabel').textContent = '+' + fmt(s.avgWinDay);
+  document.getElementById('perfAvgLossLabel').textContent = '-' + fmt(s.avgLossDay);
+
+  renderDailyLogList();
+  drawDailyBalanceChart();
+}
+function resetDailyLogForm(){
+  document.getElementById('dl_date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('dl_pnl').value = '';
+  document.getElementById('dl_trades').value = '';
+  document.getElementById('dl_wins').value = '';
+  document.getElementById('dl_note').value = '';
+  editingDailyLogId = null;
+}
+function saveDailyLog(){
+  const date = document.getElementById('dl_date').value;
+  const pnl = parseFloat(document.getElementById('dl_pnl').value);
+  if(!date){ showToast('Lütfen bir tarih seç.', 'error'); return; }
+  if(isNaN(pnl)){ showToast('Lütfen geçerli bir P&L gir.', 'error'); return; }
+  const trades = parseInt(document.getElementById('dl_trades').value) || 0;
+  const wins = parseInt(document.getElementById('dl_wins').value) || 0;
+  const note = document.getElementById('dl_note').value.trim();
+
+  // Aynı tarihte zaten kayıt varsa (ve düzenleme modunda değilsek) üzerine yaz
+  const existingIdx = state.dailyLogs.findIndex(l=> l.date===date && l.id!==editingDailyLogId);
+  const entry = { id: editingDailyLogId || Date.now(), date, pnl, trades, wins, note };
+
+  if(existingIdx > -1){
+    state.dailyLogs[existingIdx] = entry;
+  } else if(editingDailyLogId){
+    const idx = state.dailyLogs.findIndex(l=> l.id===editingDailyLogId);
+    if(idx>-1) state.dailyLogs[idx] = entry; else state.dailyLogs.unshift(entry);
+  } else {
+    state.dailyLogs.unshift(entry);
+  }
+  state.dailyLogs.sort((a,b)=> b.date.localeCompare(a.date));
+
+  resetDailyLogForm();
+  renderDailyPerf();
+  scheduleSave();
+  showToast('Gün kaydedildi ✓', 'success');
+}
+function editDailyLog(id){
+  const l = state.dailyLogs.find(x=>x.id===id);
+  if(!l) return;
+  document.getElementById('dl_date').value = l.date;
+  document.getElementById('dl_pnl').value = l.pnl;
+  document.getElementById('dl_trades').value = l.trades || '';
+  document.getElementById('dl_wins').value = l.wins || '';
+  document.getElementById('dl_note').value = l.note || '';
+  editingDailyLogId = l.id;
+  showToast('Gün düzenleme için forma yüklendi.', 'success');
+}
+function deleteDailyLog(id){
+  if(!confirm('Bu günün kaydını silmek istediğine emin misin?')) return;
+  state.dailyLogs = state.dailyLogs.filter(l=>l.id!==id);
+  if(editingDailyLogId===id) resetDailyLogForm();
+  renderDailyPerf();
+  scheduleSave();
+  showToast('Gün kaydı silindi', 'success');
+}
+function renderDailyLogList(){
+  const wrap = document.getElementById('dailyLogList');
+  if(!state.dailyLogs.length){
+    wrap.innerHTML = '<div class="field-note" style="text-align:center;padding:20px;">Henüz günlük kayıt yok.</div>';
+    return;
+  }
+  wrap.innerHTML = state.dailyLogs.map(l=>`
+    <div class="daily-log-row">
+      <div>
+        <div class="daily-log-date">${escapeHtml(l.date)}</div>
+        <div class="daily-log-meta">${l.trades||0} işlem · ${l.wins||0} kazanç${l.note ? ' · '+escapeHtml(l.note) : ''}</div>
+      </div>
+      <div class="daily-log-pnl" style="color:${l.pnl>=0?'var(--teal)':'var(--red)'}">${l.pnl>=0?'+':'-'}${fmt(Math.abs(l.pnl))}</div>
+      <button class="btn-ghost-sm" onclick="editDailyLog(${l.id})">Düzenle</button>
+      <button class="btn-danger-sm" onclick="deleteDailyLog(${l.id})">Sil</button>
+    </div>
+  `).join('');
+}
+function drawDailyBalanceChart(){
+  const canvas = document.getElementById('dailyBalanceCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 300, h = canvas.clientHeight || 150;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  const chronological = state.dailyLogs.slice().sort((a,b)=> a.date.localeCompare(b.date));
+  const startBalance = state.vaultBalance || 0;
+  let running = startBalance;
+  const points = [running].concat(chronological.map(l=>{ running += l.pnl; return running; }));
+
+  if(points.length<2){
+    ctx.fillStyle = 'rgba(139,149,165,0.5)';
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.fillText('Gün kaydettikçe eğri burada oluşacak.', 10, h/2);
+    return;
+  }
+  const min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+  const pad = (max-min)*0.18 || (Math.abs(max)*0.05) || 10;
+  const yMin = min-pad, yMax = max+pad;
+  const stepX = points.length>1 ? w/(points.length-1) : w;
+  const toY = v => h - ((v-yMin)/(yMax-yMin))*h;
+  const marginR = 6;
+
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.lineTo(w-marginR,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(240,167,41,0.24)');
+  grad.addColorStop(1,'rgba(240,167,41,0)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.setLineDash([3,4]);
+  ctx.strokeStyle='rgba(139,149,165,0.45)';
+  ctx.lineWidth=1;
+  const baseY = toY(startBalance);
+  ctx.beginPath(); ctx.moveTo(0,baseY); ctx.lineTo(w,baseY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle = '#f0a729'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+  points.forEach((p,i)=>{
+    const x=Math.min(i*stepX, w-marginR), y=toY(p);
+    const isLast = i===points.length-1;
+    ctx.beginPath();
+    ctx.arc(x,y, isLast?4:2, 0, Math.PI*2);
+    ctx.fillStyle = isLast ? '#1fe0c4' : '#f0a729';
+    ctx.fill();
+  });
+}
+function exportDailyLogs(){
+  if(!state.dailyLogs.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
+  const rows = [['Tarih','PnL','Islem Sayisi','Kazanan','Not']];
+  state.dailyLogs.forEach(l=> rows.push([l.date, l.pnl, l.trades||0, l.wins||0, l.note||'']));
+  downloadCSV('nox_gunluk_performans.csv', rows);
+}
+
+/* ============ INIT ============ */
+applyPairTemplate();
+renderJournal();
+renderVault();
+renderSim();
+renderTradeJournal();
+resetTJForm();
+resetDailyLogForm();
+renderDailyPerf();
+updateGauge();
+</script>
+</body>
+</html>
