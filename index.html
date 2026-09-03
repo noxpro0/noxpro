@@ -19,8 +19,8 @@
   --amber:#f0a729;
   --amber-dim:#8a6516;
   --amber-glow:rgba(240,167,41,0.35);
-  --teal:#1fe0c4;
-  --teal-dim:#0f6b5c;
+  --teal:#00d964;
+  --teal-dim:#0a6b34;
   --red:#ff4d6a;
   --red-dim:#7a1f2e;
   --text:#e9edf3;
@@ -29,6 +29,30 @@
   --radius:2px;
   --sans:'Space Grotesk',sans-serif;
   --mono:'IBM Plex Mono',monospace;
+  --transition-theme:background-color .4s ease, color .4s ease, border-color .4s ease;
+}
+/* ---------- NØX IGNITE (Light Mode: beyaz & kırmızı) ---------- */
+:root[data-theme="ignite"]{
+  --bg:#f7f3f0;
+  --bg-1:#ffffff;
+  --panel:#ffffff;
+  --panel-2:#f7eeec;
+  --line:#e8d9d5;
+  --line-bright:#d9c2bc;
+  --amber:#c1272d;
+  --amber-dim:#8a1418;
+  --amber-glow:rgba(193,39,45,0.28);
+  --teal:#0f9d58;
+  --teal-dim:#0a6b3c;
+  --red:#e02424;
+  --red-dim:#a51818;
+  --text:#20130f;
+  --text-mid:#7a5f59;
+  --text-dim:#a68d87;
+}
+body, .boot-screen, input, select, textarea, .btn, .tab-btn, .stat-card, .panel-body,
+.gate-card, .tj-modal, .perf-card, .journal-entry, .tj-card{
+  transition:var(--transition-theme);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
@@ -508,6 +532,36 @@ footer{text-align:center;padding:36px 0 14px;}
 .tj-modal-btn.pin.pinned{border-color:var(--amber);color:var(--amber);background:rgba(240,167,41,0.14);}
 .tj-modal-btn.delete{border-color:var(--red-dim);color:var(--red);}
 .tj-modal-btn.delete:hover{background:var(--red);color:#000;}
+
+/* ---------- SETTINGS: ICON BUTTON, TOGGLE SWITCH ---------- */
+.icon-btn{
+  background:transparent;border:1px solid var(--line-bright);color:var(--text-mid);
+  font-size:14px;padding:6px 9px;border-radius:var(--radius);cursor:pointer;line-height:1;
+  transition:all .15s;
+}
+.icon-btn:hover{border-color:var(--amber);color:var(--amber);transform:rotate(25deg);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:6px 0;}
+.settings-row-title{font-family:var(--sans);font-weight:600;font-size:13px;color:var(--text);margin-bottom:3px;}
+.switch{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-slider{
+  position:absolute;cursor:pointer;inset:0;background:var(--line-bright);border-radius:26px;
+  transition:background-color .25s;
+}
+.switch-slider::before{
+  content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;
+  background:var(--text);border-radius:50%;transition:transform .25s;
+}
+.switch input:checked + .switch-slider{background:var(--amber);}
+.switch input:checked + .switch-slider::before{transform:translateX(20px);background:#0a0700;}
+
+/* ---------- TEMA GEÇİŞ ANİMASYONU ---------- */
+.theme-transition-overlay{
+  position:fixed;inset:0;z-index:200;pointer-events:none;
+  opacity:0;background:var(--amber);
+}
+.theme-transition-overlay.animating{transition:opacity .28s ease;}
+.theme-transition-overlay.phase-in{opacity:1;}
 .tj-modal-close{background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;}
 .tj-modal-close:hover{color:var(--red);}
 .tj-modal-body{padding:14px;overflow-y:auto;font-size:12px;display:flex;flex-direction:column;gap:9px;}
@@ -581,6 +635,7 @@ footer{text-align:center;padding:36px 0 14px;}
       <div class="user-chip"><span>👤</span><b id="userDisplay">GUEST</b></div>
       <button class="btn-ghost-sm" onclick="renameUser()">İsim Değiştir</button>
       <button class="btn-ghost-sm" onclick="showGate()">Çıkış Yap</button>
+      <button class="icon-btn" id="settingsBtn" onclick="openSettingsModal()" title="Ayarlar">⚙️</button>
     </div>
   </div>
 
@@ -596,9 +651,6 @@ footer{text-align:center;padding:36px 0 14px;}
     </button>
     <button class="tab-btn" data-tab="backtest" onclick="switchTab('backtest')">
       <span>📊 Winrate &amp; Backtest</span><span class="fkey">F4</span>
-    </button>
-    <button class="tab-btn" data-tab="dailyperf" onclick="switchTab('dailyperf')">
-      <span>📈 Günlük Performans</span><span class="fkey">F5</span>
     </button>
   </div>
 
@@ -683,6 +735,40 @@ footer{text-align:center;padding:36px 0 14px;}
       <div class="balance-hero">
         <div class="stat-label">Mevcut Ana Kasa Bakiyesi</div>
         <div class="stat-value" id="vaultBalanceDisplay">$0.00</div>
+      </div>
+
+      <div class="perf-grid">
+        <div class="perf-card hero">
+          <div class="perf-label">Toplam P&amp;L (Journal)</div>
+          <div class="perf-big-value" id="perfTotalPnl">$0.00</div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">İşlem Win %</div>
+          <div class="perf-gauge-wrap" id="perfTradeWinGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Gün Win %</div>
+          <div class="perf-gauge-wrap" id="perfDayWinGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Profit Factor</div>
+          <div class="perf-gauge-wrap" id="perfProfitFactorGauge"></div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">En İyi Gün / Toplam Kâr</div>
+          <div class="perf-gauge-wrap" id="perfBestDayGauge"></div>
+        </div>
+        <div class="perf-card" style="grid-column:span 2;">
+          <div class="perf-label">Ort. Kazanç / Ort. Kayıp (işlem başına)</div>
+          <div class="perf-winloss-bar">
+            <div class="perf-winloss-fill" id="perfWinBar" style="background:var(--teal);width:50%;"></div>
+            <div class="perf-winloss-fill" id="perfLossBar" style="background:var(--red);width:50%;"></div>
+          </div>
+          <div class="perf-winloss-labels">
+            <span style="color:var(--teal);" id="perfAvgWinLabel">+$0.00</span>
+            <span style="color:var(--red);" id="perfAvgLossLabel">-$0.00</span>
+          </div>
+        </div>
       </div>
 
       <div class="section-title">Yeni Kasa Hareketi</div>
@@ -815,64 +901,6 @@ footer{text-align:center;padding:36px 0 14px;}
       <div id="tradeJournalList"></div>
     </div>
 
-    <!-- ===== TAB 5: DAILY PERFORMANCE ===== -->
-    <div class="tab-panel" id="tab-dailyperf">
-      <div class="section-title">Bugünü Kaydet</div>
-      <div class="grid-2">
-        <div class="field"><label>Tarih</label><input type="date" id="dl_date"></div>
-        <div class="field"><label>Günlük P&amp;L ($)</label><input type="number" id="dl_pnl" step="0.01" placeholder="örn. 250 ya da -80"></div>
-      </div>
-      <div class="grid-2">
-        <div class="field"><label>İşlem Sayısı</label><input type="number" id="dl_trades" min="0" step="1" placeholder="0"></div>
-        <div class="field"><label>Kazanan İşlem Sayısı</label><input type="number" id="dl_wins" min="0" step="1" placeholder="0"></div>
-      </div>
-      <div class="field"><label>Not (opsiyonel)</label><input type="text" id="dl_note" placeholder="Bugün nasıl geçti..."></div>
-      <button class="btn" onclick="saveDailyLog()">💾 Bugünü Kaydet</button>
-
-      <div class="perf-grid">
-        <div class="perf-card hero">
-          <div class="perf-label">Toplam P&amp;L</div>
-          <div class="perf-big-value" id="perfTotalPnl">$0.00</div>
-        </div>
-        <div class="perf-card">
-          <div class="perf-label">İşlem Win %</div>
-          <div class="perf-gauge-wrap" id="perfTradeWinGauge"></div>
-        </div>
-        <div class="perf-card">
-          <div class="perf-label">Gün Win %</div>
-          <div class="perf-gauge-wrap" id="perfDayWinGauge"></div>
-        </div>
-        <div class="perf-card">
-          <div class="perf-label">Profit Factor</div>
-          <div class="perf-gauge-wrap" id="perfProfitFactorGauge"></div>
-        </div>
-        <div class="perf-card">
-          <div class="perf-label">En İyi Gün / Toplam Kâr</div>
-          <div class="perf-gauge-wrap" id="perfBestDayGauge"></div>
-        </div>
-        <div class="perf-card" style="grid-column:span 2;">
-          <div class="perf-label">Ort. Kazanç Günü / Ort. Kayıp Günü</div>
-          <div class="perf-winloss-bar">
-            <div class="perf-winloss-fill" id="perfWinBar" style="background:var(--teal);width:50%;"></div>
-            <div class="perf-winloss-fill" id="perfLossBar" style="background:var(--red);width:50%;"></div>
-          </div>
-          <div class="perf-winloss-labels">
-            <span style="color:var(--teal);" id="perfAvgWinLabel">+$0.00</span>
-            <span style="color:var(--red);" id="perfAvgLossLabel">-$0.00</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title"><span class="stitle">📈 Günlük Hesap Bakiyesi</span></div>
-      <div class="chart-wrap">
-        <canvas id="dailyBalanceCanvas"></canvas>
-      </div>
-      <div class="chart-caption">Kayıtlı günlerin kümülatif P&amp;L eğrisi</div>
-
-      <div class="section-title"><span class="stitle">🗓️ Kayıtlı Günler</span><button class="btn-ghost-sm" onclick="exportDailyLogs()">⭳ CSV indir</button></div>
-      <div class="daily-log-list" id="dailyLogList"></div>
-    </div>
-
   </div>
 
   <footer>
@@ -911,6 +939,31 @@ footer{text-align:center;padding:36px 0 14px;}
   </div>
 </div>
 
+<div class="tj-modal-overlay" id="settingsModalOverlay" onclick="closeSettingsModal(event)">
+  <div class="tj-modal" onclick="event.stopPropagation()">
+    <div class="tj-modal-header">
+      <span>⚙️ Ayarlar</span>
+      <div class="tj-modal-actions">
+        <button class="tj-modal-close" onclick="closeSettingsModal()">✕</button>
+      </div>
+    </div>
+    <div class="tj-modal-body">
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title" id="themeModeLabel">Dark Mode</div>
+          <div class="field-note" id="themeModeDesc">NØX PRO — obsidian &amp; amber tema aktif.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" checked onchange="onDarkModeToggle(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="theme-transition-overlay" id="themeTransitionOverlay"></div>
+
 <script>
 /* ============ STATE ============ */
 const state = {
@@ -925,8 +978,7 @@ const state = {
   simBalance: 10000,
   simStartBalance: 10000,
   simTrades: [],
-  simStats: { total:0, wins:0, totalR:0, netPnl:0 },
-  dailyLogs: []
+  simStats: { total:0, wins:0, totalR:0, netPnl:0 }
 };
 
 const PAIRS = {
@@ -1207,7 +1259,6 @@ async function saveRemoteData(){
     vaultHistory: state.vaultHistory,
     journal: state.journal,
     tradeJournal: state.tradeJournal,
-    dailyLogs: state.dailyLogs,
     simBalance: state.simBalance,
     simStartBalance: state.simStartBalance,
     simTrades: state.simTrades,
@@ -1244,14 +1295,12 @@ function applyRemoteData(data){
   if(needsRecompute || Array.isArray(data.vaultHistory)) recomputeVaultBalances();
   state.journal = Array.isArray(data.journal) ? data.journal : state.journal;
   state.tradeJournal = Array.isArray(data.tradeJournal) ? data.tradeJournal : state.tradeJournal;
-  state.dailyLogs = Array.isArray(data.dailyLogs) ? data.dailyLogs : state.dailyLogs;
   state.simBalance = typeof data.simBalance==='number' ? data.simBalance : state.simBalance;
   state.simStartBalance = typeof data.simStartBalance==='number' ? data.simStartBalance : state.simStartBalance;
   state.simTrades = Array.isArray(data.simTrades) ? data.simTrades : state.simTrades;
   state.simStats = data.simStats || state.simStats;
-  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderDailyPerf();
+  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderPerfStats();
   resetTJForm();
-  resetDailyLogForm();
 }
 
 /* ============ TABS ============ */
@@ -1260,11 +1309,10 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='backtest') setTimeout(drawEquityCurve, 30);
-  if(name==='dailyperf') setTimeout(drawDailyBalanceChart, 30);
 }
 // F1-F4 ile sekmeler arası geçiş
-const TAB_FKEY_MAP = { F1:'risk', F2:'tradejournal', F3:'vault', F4:'backtest', F5:'dailyperf' };
-const TAB_DIGIT_MAP = { '1':'risk', '2':'tradejournal', '3':'vault', '4':'backtest', '5':'dailyperf' };
+const TAB_FKEY_MAP = { F1:'risk', F2:'tradejournal', F3:'vault', F4:'backtest' };
+const TAB_DIGIT_MAP = { '1':'risk', '2':'tradejournal', '3':'vault', '4':'backtest' };
 document.addEventListener('keydown', e=>{
   if(document.getElementById('appScreen').style.display === 'none') return;
   if(TAB_FKEY_MAP[e.key]){
@@ -1459,6 +1507,7 @@ function processVault(){
 }
 function renderVault(){
   document.getElementById('vaultBalanceDisplay').textContent = fmt(state.vaultBalance);
+  renderPerfStats();
   const body = document.getElementById('vaultBody');
   if(state.vaultHistory.length===0){
     body.innerHTML = '<tr class="empty-row"><td colspan="6">Kasa hareketi bulunmuyor.</td></tr>';
@@ -1544,6 +1593,88 @@ function closeVaultModal(){
   document.getElementById('vaultModalOverlay').classList.remove('open');
   currentVaultEntry = null;
 }
+
+/* ============ AYARLAR / TEMA (Dark Mode <-> NØX IGNITE) ============ */
+function openSettingsModal(){
+  document.getElementById('settingsModalOverlay').classList.add('open');
+}
+function closeSettingsModal(){
+  document.getElementById('settingsModalOverlay').classList.remove('open');
+}
+
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playDarkModeSound(){
+  try{
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    // Alçalan, biraz ürkütücü çift osilatörlü ton
+    const osc1 = ctx.createOscillator(); osc1.type = 'sawtooth';
+    const osc2 = ctx.createOscillator(); osc2.type = 'sine';
+    const gain = ctx.createGain();
+    osc1.frequency.setValueAtTime(240, now);
+    osc1.frequency.exponentialRampToValueAtTime(55, now + 0.55);
+    osc2.frequency.setValueAtTime(120, now);
+    osc2.frequency.exponentialRampToValueAtTime(40, now + 0.55);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+    osc1.start(now); osc2.start(now);
+    osc1.stop(now + 0.6); osc2.stop(now + 0.6);
+  }catch(e){ /* Web Audio desteklenmiyorsa sessizce geç */ }
+}
+function playLightModeSound(){
+  try{
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    // Yükselen, parlak ve temiz bir çan sesi
+    const osc = ctx.createOscillator(); osc.type = 'sine';
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(420, now);
+    osc.frequency.exponentialRampToValueAtTime(920, now + 0.28);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.35);
+  }catch(e){ /* Web Audio desteklenmiyorsa sessizce geç */ }
+}
+function applyThemeVisuals(theme){
+  if(theme === 'ignite'){
+    document.documentElement.setAttribute('data-theme', 'ignite');
+    document.getElementById('themeModeLabel').textContent = 'NØX IGNITE';
+    document.getElementById('themeModeDesc').textContent = 'Beyaz & kırmızı gündüz teması aktif.';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeModeLabel').textContent = 'Dark Mode';
+    document.getElementById('themeModeDesc').textContent = 'NØX PRO — obsidian & amber tema aktif.';
+  }
+}
+function onDarkModeToggle(isDarkOn){
+  const targetTheme = isDarkOn ? 'pro' : 'ignite';
+  const overlay = document.getElementById('themeTransitionOverlay');
+  const flashColor = targetTheme === 'ignite' ? '#c1272d' : '#000000';
+
+  if(targetTheme === 'ignite') playLightModeSound(); else playDarkModeSound();
+
+  overlay.style.background = flashColor;
+  overlay.classList.add('animating', 'phase-in');
+  setTimeout(()=>{
+    applyThemeVisuals(targetTheme);
+    localStorage.setItem('nox-theme', targetTheme);
+    setTimeout(()=>{ overlay.classList.remove('phase-in'); }, 60);
+  }, 280);
+}
+function initTheme(){
+  const saved = localStorage.getItem('nox-theme') || 'pro';
+  applyThemeVisuals(saved);
+  document.getElementById('darkModeToggle').checked = (saved === 'pro');
+}
+
 function toggleVaultPin(){
   if(!currentVaultEntry) return;
   currentVaultEntry.pinned = !currentVaultEntry.pinned;
@@ -1658,13 +1789,12 @@ function drawEquityCurve(){
     const isLast = i===points.length-1;
     ctx.beginPath();
     ctx.arc(x,y, isLast?4:2, 0, Math.PI*2);
-    ctx.fillStyle = isLast ? '#1fe0c4' : '#f0a729';
+    ctx.fillStyle = isLast ? '#00d964' : '#f0a729';
     ctx.fill();
   });
 }
 window.addEventListener('resize', ()=>{
   if(document.getElementById('tab-backtest').classList.contains('active')) drawEquityCurve();
-  if(document.getElementById('tab-dailyperf').classList.contains('active')) drawDailyBalanceChart();
 });
 function resetSimulation(){
   if(state.simTrades.length && !confirm('Simülasyonu sıfırlamak istediğinize emin misiniz?')) return;
@@ -1760,6 +1890,7 @@ function addTradeJournalEntry(){
   };
   state.tradeJournal.unshift(entry);
   renderTradeJournal();
+  renderPerfStats();
   resetTJForm();
   showToast('İşlem Trade Journal\'a kaydedildi ✓', 'success');
   scheduleSave();
@@ -1767,6 +1898,7 @@ function addTradeJournalEntry(){
 function deleteTJEntry(id){
   state.tradeJournal = state.tradeJournal.filter(e=>e.id!==id);
   renderTradeJournal();
+  renderPerfStats();
   scheduleSave();
 }
 let currentModalEntry = null;
@@ -1900,6 +2032,7 @@ function saveTJModalEdit(){
   e.screenshot = tjmScreenshotData;
 
   renderTradeJournal();
+  renderPerfStats();
   scheduleSave();
   showToast('İşlem güncellendi ✓', 'success');
   closeTJModal();
@@ -1966,9 +2099,7 @@ function sendToJournal(){
   showToast('Pozisyon Trade Journal\'a aktarıldı — detayları tamamlayıp kaydet.', 'success');
 }
 
-/* ============ DAILY PERFORMANCE ============ */
-let editingDailyLogId = null;
-
+/* ============ PERFORMANS GÖSTERGELERİ (Trade Journal'dan otomatik) ============ */
 function radialGaugeSVG(percent, color, size, strokeWidth){
   size = size || 88; strokeWidth = strokeWidth || 9;
   const clamped = Math.max(0, Math.min(100, percent));
@@ -1987,30 +2118,42 @@ function tierColor(value, goodMin, midMin){
   if(value >= midMin) return 'var(--amber)';
   return 'var(--red)';
 }
-function computeDailyStats(){
-  const logs = state.dailyLogs;
-  const totalPnl = logs.reduce((s,l)=> s + l.pnl, 0);
-  const winDays = logs.filter(l=> l.pnl > 0);
-  const lossDays = logs.filter(l=> l.pnl < 0);
-  const totalTrades = logs.reduce((s,l)=> s + (l.trades||0), 0);
-  const totalWins = logs.reduce((s,l)=> s + (l.wins||0), 0);
-  const dayWinPct = logs.length ? (winDays.length / logs.length * 100) : 0;
-  const tradeWinPct = totalTrades ? (totalWins / totalTrades * 100) : 0;
-  const grossProfit = winDays.reduce((s,l)=> s + l.pnl, 0);
-  const grossLoss = Math.abs(lossDays.reduce((s,l)=> s + l.pnl, 0));
-  const profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : (grossProfit > 0 ? 3 : 0);
-  const avgWinDay = winDays.length ? (grossProfit / winDays.length) : 0;
-  const avgLossDay = lossDays.length ? (grossLoss / lossDays.length) : 0;
-  const bestDay = logs.length ? Math.max(...logs.map(l=>l.pnl)) : 0;
-  const bestDayPct = grossProfit > 0 ? Math.max(0, bestDay / grossProfit * 100) : 0;
-  return { totalPnl, dayWinPct, tradeWinPct, profitFactor, avgWinDay, avgLossDay, bestDayPct };
-}
-function renderDailyPerf(){
-  const s = computeDailyStats();
+function computeJournalStats(){
+  // Sadece kapanmış işlemler (TP/SL/BE) sayılır - Açık/Manuel hariç
+  const closed = state.tradeJournal.filter(e => e.result==='TP' || e.result==='SL' || e.result==='BE');
+  const withPnl = closed.map(e=>{
+    let pnl = 0;
+    if(e.result==='TP') pnl = (e.riskUsd||0) * (e.rr||0);
+    else if(e.result==='SL') pnl = -(e.riskUsd||0);
+    return { date: e.date, pnl, result: e.result };
+  });
+  const totalPnl = withPnl.reduce((s,x)=>s+x.pnl, 0);
+  const wins = withPnl.filter(x=>x.result==='TP');
+  const losses = withPnl.filter(x=>x.result==='SL');
+  const tradeWinPct = (wins.length+losses.length) ? (wins.length/(wins.length+losses.length)*100) : 0;
+  const grossProfit = wins.reduce((s,x)=>s+x.pnl, 0);
+  const grossLoss = Math.abs(losses.reduce((s,x)=>s+x.pnl, 0));
+  const profitFactor = grossLoss>0 ? (grossProfit/grossLoss) : (grossProfit>0 ? 3 : 0);
+  const avgWin = wins.length ? grossProfit/wins.length : 0;
+  const avgLoss = losses.length ? grossLoss/losses.length : 0;
 
-  const pnlEl = document.getElementById('perfTotalPnl');
-  pnlEl.textContent = (s.totalPnl>=0?'+':'-') + fmt(Math.abs(s.totalPnl));
-  pnlEl.style.color = s.totalPnl >= 0 ? 'var(--teal)' : 'var(--red)';
+  const byDate = {};
+  withPnl.forEach(x=>{ if(!x.date) return; byDate[x.date] = (byDate[x.date]||0) + x.pnl; });
+  const dayPnls = Object.values(byDate);
+  const dayWinPct = dayPnls.length ? (dayPnls.filter(p=>p>0).length/dayPnls.length*100) : 0;
+  const bestDay = dayPnls.length ? Math.max(...dayPnls) : 0;
+  const dayGrossProfit = dayPnls.filter(p=>p>0).reduce((s,p)=>s+p, 0);
+  const bestDayPct = dayGrossProfit>0 ? Math.max(0, bestDay/dayGrossProfit*100) : 0;
+
+  return { totalPnl, tradeWinPct, dayWinPct, profitFactor, avgWin, avgLoss, bestDayPct };
+}
+function renderPerfStats(){
+  const el = document.getElementById('perfTotalPnl');
+  if(!el) return; // vault sekmesi henüz DOM'da değilse sessizce çık
+  const s = computeJournalStats();
+
+  el.textContent = (s.totalPnl>=0?'+':'-') + fmt(Math.abs(s.totalPnl));
+  el.style.color = s.totalPnl >= 0 ? 'var(--teal)' : 'var(--red)';
 
   document.getElementById('perfTradeWinGauge').innerHTML =
     radialGaugeSVG(s.tradeWinPct, tierColor(s.tradeWinPct, 60, 40)) + `<div class="perf-gauge-value">${s.tradeWinPct.toFixed(0)}%</div>`;
@@ -2026,167 +2169,28 @@ function renderDailyPerf(){
     radialGaugeSVG(pfPercent, pfColor) + `<div class="perf-gauge-value">${s.profitFactor.toFixed(2)}</div>`;
   document.getElementById('perfProfitFactorGauge').style.position = 'relative';
 
-  // Burada düşük yüzde iyi (tek güne aşırı bağımlılık riski demek) - bu yüzden ters kademelendirme
   const bestDayColor = s.bestDayPct <= 30 ? 'var(--teal)' : s.bestDayPct <= 55 ? 'var(--amber)' : 'var(--red)';
   document.getElementById('perfBestDayGauge').innerHTML =
     radialGaugeSVG(s.bestDayPct, bestDayColor) + `<div class="perf-gauge-value">${s.bestDayPct.toFixed(0)}%</div>`;
   document.getElementById('perfBestDayGauge').style.position = 'relative';
 
-  const winTotal = s.avgWinDay + s.avgLossDay;
-  const winPct = winTotal > 0 ? (s.avgWinDay/winTotal*100) : 50;
+  const winTotal = s.avgWin + s.avgLoss;
+  const winPct = winTotal > 0 ? (s.avgWin/winTotal*100) : 50;
   document.getElementById('perfWinBar').style.width = winPct + '%';
   document.getElementById('perfLossBar').style.width = (100-winPct) + '%';
-  document.getElementById('perfAvgWinLabel').textContent = '+' + fmt(s.avgWinDay);
-  document.getElementById('perfAvgLossLabel').textContent = '-' + fmt(s.avgLossDay);
-
-  renderDailyLogList();
-  drawDailyBalanceChart();
-}
-function resetDailyLogForm(){
-  document.getElementById('dl_date').value = new Date().toISOString().slice(0,10);
-  document.getElementById('dl_pnl').value = '';
-  document.getElementById('dl_trades').value = '';
-  document.getElementById('dl_wins').value = '';
-  document.getElementById('dl_note').value = '';
-  editingDailyLogId = null;
-}
-function saveDailyLog(){
-  const date = document.getElementById('dl_date').value;
-  const pnl = parseFloat(document.getElementById('dl_pnl').value);
-  if(!date){ showToast('Lütfen bir tarih seç.', 'error'); return; }
-  if(isNaN(pnl)){ showToast('Lütfen geçerli bir P&L gir.', 'error'); return; }
-  const trades = parseInt(document.getElementById('dl_trades').value) || 0;
-  const wins = parseInt(document.getElementById('dl_wins').value) || 0;
-  const note = document.getElementById('dl_note').value.trim();
-
-  // Aynı tarihte zaten kayıt varsa (ve düzenleme modunda değilsek) üzerine yaz
-  const existingIdx = state.dailyLogs.findIndex(l=> l.date===date && l.id!==editingDailyLogId);
-  const entry = { id: editingDailyLogId || Date.now(), date, pnl, trades, wins, note };
-
-  if(existingIdx > -1){
-    state.dailyLogs[existingIdx] = entry;
-  } else if(editingDailyLogId){
-    const idx = state.dailyLogs.findIndex(l=> l.id===editingDailyLogId);
-    if(idx>-1) state.dailyLogs[idx] = entry; else state.dailyLogs.unshift(entry);
-  } else {
-    state.dailyLogs.unshift(entry);
-  }
-  state.dailyLogs.sort((a,b)=> b.date.localeCompare(a.date));
-
-  resetDailyLogForm();
-  renderDailyPerf();
-  scheduleSave();
-  showToast('Gün kaydedildi ✓', 'success');
-}
-function editDailyLog(id){
-  const l = state.dailyLogs.find(x=>x.id===id);
-  if(!l) return;
-  document.getElementById('dl_date').value = l.date;
-  document.getElementById('dl_pnl').value = l.pnl;
-  document.getElementById('dl_trades').value = l.trades || '';
-  document.getElementById('dl_wins').value = l.wins || '';
-  document.getElementById('dl_note').value = l.note || '';
-  editingDailyLogId = l.id;
-  showToast('Gün düzenleme için forma yüklendi.', 'success');
-}
-function deleteDailyLog(id){
-  if(!confirm('Bu günün kaydını silmek istediğine emin misin?')) return;
-  state.dailyLogs = state.dailyLogs.filter(l=>l.id!==id);
-  if(editingDailyLogId===id) resetDailyLogForm();
-  renderDailyPerf();
-  scheduleSave();
-  showToast('Gün kaydı silindi', 'success');
-}
-function renderDailyLogList(){
-  const wrap = document.getElementById('dailyLogList');
-  if(!state.dailyLogs.length){
-    wrap.innerHTML = '<div class="field-note" style="text-align:center;padding:20px;">Henüz günlük kayıt yok.</div>';
-    return;
-  }
-  wrap.innerHTML = state.dailyLogs.map(l=>`
-    <div class="daily-log-row">
-      <div>
-        <div class="daily-log-date">${escapeHtml(l.date)}</div>
-        <div class="daily-log-meta">${l.trades||0} işlem · ${l.wins||0} kazanç${l.note ? ' · '+escapeHtml(l.note) : ''}</div>
-      </div>
-      <div class="daily-log-pnl" style="color:${l.pnl>=0?'var(--teal)':'var(--red)'}">${l.pnl>=0?'+':'-'}${fmt(Math.abs(l.pnl))}</div>
-      <button class="btn-ghost-sm" onclick="editDailyLog(${l.id})">Düzenle</button>
-      <button class="btn-danger-sm" onclick="deleteDailyLog(${l.id})">Sil</button>
-    </div>
-  `).join('');
-}
-function drawDailyBalanceChart(){
-  const canvas = document.getElementById('dailyBalanceCanvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth || 300, h = canvas.clientHeight || 150;
-  canvas.width = w*dpr; canvas.height = h*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,w,h);
-
-  const chronological = state.dailyLogs.slice().sort((a,b)=> a.date.localeCompare(b.date));
-  const startBalance = state.vaultBalance || 0;
-  let running = startBalance;
-  const points = [running].concat(chronological.map(l=>{ running += l.pnl; return running; }));
-
-  if(points.length<2){
-    ctx.fillStyle = 'rgba(139,149,165,0.5)';
-    ctx.font = '11px "IBM Plex Mono", monospace';
-    ctx.fillText('Gün kaydettikçe eğri burada oluşacak.', 10, h/2);
-    return;
-  }
-  const min = Math.min.apply(null, points), max = Math.max.apply(null, points);
-  const pad = (max-min)*0.18 || (Math.abs(max)*0.05) || 10;
-  const yMin = min-pad, yMax = max+pad;
-  const stepX = points.length>1 ? w/(points.length-1) : w;
-  const toY = v => h - ((v-yMin)/(yMax-yMin))*h;
-  const marginR = 6;
-
-  ctx.beginPath();
-  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.lineTo(w-marginR,h); ctx.lineTo(0,h); ctx.closePath();
-  const grad = ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0,'rgba(240,167,41,0.24)');
-  grad.addColorStop(1,'rgba(240,167,41,0)');
-  ctx.fillStyle = grad; ctx.fill();
-
-  ctx.setLineDash([3,4]);
-  ctx.strokeStyle='rgba(139,149,165,0.45)';
-  ctx.lineWidth=1;
-  const baseY = toY(startBalance);
-  ctx.beginPath(); ctx.moveTo(0,baseY); ctx.lineTo(w,baseY); ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.beginPath();
-  points.forEach((p,i)=>{ const x=Math.min(i*stepX, w-marginR); const y=toY(p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.strokeStyle = '#f0a729'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
-
-  points.forEach((p,i)=>{
-    const x=Math.min(i*stepX, w-marginR), y=toY(p);
-    const isLast = i===points.length-1;
-    ctx.beginPath();
-    ctx.arc(x,y, isLast?4:2, 0, Math.PI*2);
-    ctx.fillStyle = isLast ? '#1fe0c4' : '#f0a729';
-    ctx.fill();
-  });
-}
-function exportDailyLogs(){
-  if(!state.dailyLogs.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
-  const rows = [['Tarih','PnL','Islem Sayisi','Kazanan','Not']];
-  state.dailyLogs.forEach(l=> rows.push([l.date, l.pnl, l.trades||0, l.wins||0, l.note||'']));
-  downloadCSV('nox_gunluk_performans.csv', rows);
+  document.getElementById('perfAvgWinLabel').textContent = '+' + fmt(s.avgWin);
+  document.getElementById('perfAvgLossLabel').textContent = '-' + fmt(s.avgLoss);
 }
 
 /* ============ INIT ============ */
+initTheme();
 applyPairTemplate();
 renderJournal();
 renderVault();
 renderSim();
 renderTradeJournal();
 resetTJForm();
-resetDailyLogForm();
-renderDailyPerf();
+renderPerfStats();
 updateGauge();
 </script>
 </body>
