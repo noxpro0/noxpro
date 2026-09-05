@@ -178,10 +178,16 @@ textarea{
   resize:vertical;line-height:1.5;
 }
 textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow);}
-input[type=file]{
-  width:100%;background:var(--bg);border:1px dashed var(--line-bright);color:var(--text-mid);
-  font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;
+input[type=file]{display:none;}
+.file-upload-btn{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:var(--bg);border:1.5px dashed var(--line-bright);color:var(--text-mid);
+  font-family:var(--mono);font-size:12.5px;padding:12px 14px;border-radius:var(--radius);
+  cursor:pointer;transition:all .15s;
 }
+.file-upload-btn:hover{border-color:var(--amber);color:var(--amber);background:rgba(240,167,41,0.05);}
+.file-upload-btn .file-upload-icon{font-size:18px;flex-shrink:0;}
+.file-upload-btn .file-upload-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .btn{
   width:100%;
   background:var(--amber);
@@ -897,6 +903,10 @@ footer{text-align:center;padding:36px 0 14px;}
       <div class="field">
         <label>📸 Grafik Görüntüsü</label>
         <input type="file" id="tj_screenshot" accept="image/*" onchange="handleTJScreenshot(event)">
+        <label for="tj_screenshot" class="file-upload-btn">
+          <span class="file-upload-icon">📸</span>
+          <span class="file-upload-text" id="tj_screenshotFileName">Görüntü seç...</span>
+        </label>
         <div id="tj_screenshotPreview"></div>
       </div>
 
@@ -919,6 +929,15 @@ footer{text-align:center;padding:36px 0 14px;}
           <div class="radio-opt" id="sbt_resBE" onclick="setSBTResult('BE')">➖ BE</div>
         </div>
         <div class="field"><label>Not (opsiyonel)</label><input type="text" id="sbt_note" placeholder="kısa not..."></div>
+        <div class="field">
+          <label>📸 Grafik Görüntüsü (opsiyonel)</label>
+          <input type="file" id="sbt_screenshot" accept="image/*" onchange="handleSBTScreenshot(event)">
+          <label for="sbt_screenshot" class="file-upload-btn">
+            <span class="file-upload-icon">📸</span>
+            <span class="file-upload-text" id="sbt_screenshotFileName">Görüntü seç...</span>
+          </label>
+          <div id="sbt_screenshotPreview"></div>
+        </div>
         <button class="btn" onclick="addSetupBacktest()">💾 Backtest Kaydını Ekle</button>
 
         <div class="section-title"><span class="stitle">📈 Setup Win Rate'leri</span></div>
@@ -927,8 +946,8 @@ footer{text-align:center;padding:36px 0 14px;}
         <div class="section-title"><span class="stitle">🗂️ Kayıtlı Backtest İşlemleri</span><button class="btn-ghost-sm" onclick="exportSetupBacktests()">⭳ CSV indir</button></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Setup</th><th>RR</th><th>Sonuç</th><th>Not</th><th>İşlem</th></tr></thead>
-            <tbody id="setupBacktestBody"><tr class="empty-row"><td colspan="5">Henüz backtest kaydı yok.</td></tr></tbody>
+            <thead><tr><th>Setup</th><th>RR</th><th>Sonuç</th><th>Not</th><th>Görüntü</th><th>İşlem</th></tr></thead>
+            <tbody id="setupBacktestBody"><tr class="empty-row"><td colspan="6">Henüz backtest kaydı yok.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1867,6 +1886,7 @@ function handleTJScreenshot(e){
   const file = e.target.files[0];
   if(!file) return;
   if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  document.getElementById('tj_screenshotFileName').textContent = file.name;
   const reader = new FileReader();
   reader.onload = function(ev){
     const img = new Image();
@@ -1893,6 +1913,7 @@ function resetTJForm(){
   document.getElementById('tj_result').value = 'Açık';
   document.getElementById('tj_date').value = new Date().toISOString().slice(0,10);
   document.getElementById('tj_screenshot').value = '';
+  document.getElementById('tj_screenshotFileName').textContent = 'Görüntü seç...';
   document.getElementById('tj_screenshotPreview').innerHTML = '';
   tjScreenshotData = null;
   setTJDirection('LONG');
@@ -1979,6 +2000,8 @@ function handleTJModalScreenshot(e){
   const file = e.target.files[0];
   if(!file) return;
   if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  const fnEl = document.getElementById('tjm_screenshotFileName');
+  if(fnEl) fnEl.textContent = file.name;
   const reader = new FileReader();
   reader.onload = function(ev){
     const img = new Image();
@@ -2009,7 +2032,13 @@ function openTJModal(id){
   document.getElementById('tjModalTitle').textContent = '#'+e.no+' · '+e.pair;
   document.getElementById('tjModalBody').innerHTML = `
     ${e.screenshot ? `<img id="tjm_screenshotImg" src="${e.screenshot}" onclick="openCurrentScreenshotFullsize()">` : ''}
-    <div class="field"><label>📸 Görüntü ${e.screenshot?'Değiştir':'Ekle'}</label><input type="file" id="tjm_screenshot" accept="image/*" onchange="handleTJModalScreenshot(event)"></div>
+    <div class="field"><label>📸 Görüntü ${e.screenshot?'Değiştir':'Ekle'}</label>
+      <input type="file" id="tjm_screenshot" accept="image/*" onchange="handleTJModalScreenshot(event)">
+      <label for="tjm_screenshot" class="file-upload-btn">
+        <span class="file-upload-icon">📸</span>
+        <span class="file-upload-text" id="tjm_screenshotFileName">${e.screenshot ? 'Yeni görüntü seç...' : 'Görüntü seç...'}</span>
+      </label>
+    </div>
     <div class="field"><label>Tarih</label><input type="date" id="tjm_date" value="${e.date||''}"></div>
     <div class="field"><label>Parite</label><input type="text" id="tjm_pair" value="${escapeHtml(e.pair)}"></div>
     <div class="field"><label>Zaman Dilimi</label><input type="text" id="tjm_timeframe" value="${escapeHtml(e.timeframe||'')}"></div>
@@ -2185,6 +2214,31 @@ function computeJournalStats(){
 }
 /* ============ SETUP BACKTEST (Trade Journal alt-görünümü) ============ */
 let sbtResult = 'WIN';
+let sbtScreenshotData = null;
+function handleSBTScreenshot(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  document.getElementById('sbt_screenshotFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width*scale);
+      canvas.height = Math.round(img.height*scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      sbtScreenshotData = canvas.toDataURL('image/jpeg', 0.72);
+      document.getElementById('sbt_screenshotPreview').innerHTML =
+        '<img src="'+sbtScreenshotData+'" style="max-width:220px;width:100%;margin-top:8px;border:1px solid var(--line-bright);border-radius:4px;display:block;">';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function toggleSetupBacktestView(){
   const mainView = document.getElementById('tjMainView');
   const btView = document.getElementById('tjSetupBacktestView');
@@ -2207,10 +2261,14 @@ function addSetupBacktest(){
   if(!setup){ showToast('Setup adını girmelisin.', 'error'); return; }
   if(isNaN(rr) || rr<=0){ showToast('Geçerli bir RR girmelisin.', 'error'); return; }
   const note = document.getElementById('sbt_note').value.trim();
-  state.setupBacktests.unshift({ id: Date.now(), setup, rr, result: sbtResult, note });
+  state.setupBacktests.unshift({ id: Date.now(), setup, rr, result: sbtResult, note, screenshot: sbtScreenshotData });
   document.getElementById('sbt_setup').value = '';
   document.getElementById('sbt_rr').value = '';
   document.getElementById('sbt_note').value = '';
+  document.getElementById('sbt_screenshot').value = '';
+  document.getElementById('sbt_screenshotFileName').textContent = 'Görüntü seç...';
+  document.getElementById('sbt_screenshotPreview').innerHTML = '';
+  sbtScreenshotData = null;
   setSBTResult('WIN');
   renderSetupBacktests();
   scheduleSave();
@@ -2262,9 +2320,14 @@ function renderSetupBacktests(){
       <td>1:${e.rr}</td>
       <td class="${e.result==='WIN'?'win':e.result==='LOSS'?'loss':''}">${e.result}</td>
       <td>${escapeHtml(e.note)||'—'}</td>
+      <td>${e.screenshot ? `<img src="${e.screenshot}" onclick="viewSBTScreenshot(${e.id})" style="width:36px;height:36px;object-fit:cover;border-radius:4px;cursor:zoom-in;border:1px solid var(--line-bright);">` : '—'}</td>
       <td><button class="btn-danger-sm" onclick="deleteSetupBacktest(${e.id})">Sil</button></td>
     </tr>
   `).join('');
+}
+function viewSBTScreenshot(id){
+  const e = state.setupBacktests.find(x=>x.id===id);
+  if(e && e.screenshot) openScreenshotFullsize(e.screenshot);
 }
 function exportSetupBacktests(){
   if(!state.setupBacktests.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
