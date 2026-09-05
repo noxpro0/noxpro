@@ -86,7 +86,7 @@ body::before{
 .ticker-wrap{
   position:relative;z-index:2;
   width:100%;overflow:hidden;
-  background:#000;
+  background:var(--bg);
   border-bottom:1px solid var(--line);
   height:34px;
   display:flex;align-items:center;
@@ -141,7 +141,7 @@ body::before{
 .field label{display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
 input[type=text],input[type=number],input[type=date],input[type=password]{
   width:100%;
-  background:#000;
+  background:var(--bg);
   border:1px solid var(--line-bright);
   color:var(--text);
   font-family:var(--mono);
@@ -164,7 +164,7 @@ input[type=date]::-webkit-calendar-picker-indicator{
 }
 input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 select{
-  width:100%;background:#000;border:1px solid var(--line-bright);color:var(--text);
+  width:100%;background:var(--bg);border:1px solid var(--line-bright);color:var(--text);
   font-family:var(--mono);font-size:13.5px;padding:11px 12px;outline:none;border-radius:var(--radius);
   appearance:none;-webkit-appearance:none;
   background-image:linear-gradient(45deg, transparent 50%, var(--amber) 50%),linear-gradient(135deg, var(--amber) 50%, transparent 50%);
@@ -173,13 +173,13 @@ select{
 }
 select:focus{border-color:var(--amber);}
 textarea{
-  width:100%;background:#000;border:1px solid var(--line-bright);color:var(--text);
+  width:100%;background:var(--bg);border:1px solid var(--line-bright);color:var(--text);
   font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;border-radius:var(--radius);
   resize:vertical;line-height:1.5;
 }
 textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow);}
 input[type=file]{
-  width:100%;background:#000;border:1px dashed var(--line-bright);color:var(--text-mid);
+  width:100%;background:var(--bg);border:1px dashed var(--line-bright);color:var(--text-mid);
   font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;
 }
 .btn{
@@ -272,7 +272,7 @@ input[type=file]{
 @media(max-width:560px){.grid-2{grid-template-columns:1fr;}.grid-4{grid-template-columns:repeat(2,1fr);}}
 
 .pct-btn{
-  background:#000;border:1px solid var(--line-bright);color:var(--text-mid);
+  background:var(--bg);border:1px solid var(--line-bright);color:var(--text-mid);
   font-family:var(--mono);font-size:12.5px;padding:9px 4px;cursor:pointer;border-radius:var(--radius);
   transition:all .12s;
 }
@@ -301,7 +301,7 @@ input[type=file]{
 .table-wrap{overflow-x:auto;border:1px solid var(--line);margin-top:10px;}
 table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px;}
 thead th{
-  background:#000;color:var(--text-dim);text-align:left;font-weight:500;
+  background:var(--bg);color:var(--text-dim);text-align:left;font-weight:500;
   padding:9px 10px;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;
   border-bottom:1px solid var(--line-bright);white-space:nowrap;
 }
@@ -332,7 +332,7 @@ td.loss{color:var(--red);font-weight:600;}
 .balance-input:focus{border-bottom-color:var(--amber);}
 .radio-row{display:flex;gap:8px;}
 .radio-opt{
-  flex:1;border:1px solid var(--line-bright);background:#000;padding:10px;text-align:center;
+  flex:1;border:1px solid var(--line-bright);background:var(--bg);padding:10px;text-align:center;
   cursor:pointer;font-size:12px;color:var(--text-mid);border-radius:var(--radius);transition:all .12s;
 }
 .radio-opt.selected{border-color:var(--teal);color:var(--teal);background:rgba(31,224,196,0.06);}
@@ -447,7 +447,7 @@ footer{text-align:center;padding:36px 0 14px;}
 .section-title .btn-ghost-sm{flex-shrink:0;}
 
 /* ---------- EQUITY CHART ---------- */
-.chart-wrap{border:1px solid var(--line);background:#000;padding:12px 8px 6px;margin-top:6px;position:relative;}
+.chart-wrap{border:1px solid var(--line);background:var(--bg);padding:12px 8px 6px;margin-top:6px;position:relative;}
 .chart-wrap canvas{width:100%;height:150px;display:block;}
 .chart-caption{font-size:9.5px;color:var(--text-dim);text-align:center;margin-top:6px;letter-spacing:0.05em;}
 
@@ -508,8 +508,8 @@ footer{text-align:center;padding:36px 0 14px;}
 .tj-card.res-win{border:2px solid var(--teal);}
 .tj-card.res-loss{border:2px solid var(--red);}
 .tj-card.res-wait{border:2px solid var(--amber);}
-.tj-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#000;display:block;}
-.tj-card-noimg{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#000;color:var(--text-dim);font-size:26px;}
+.tj-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--bg);display:block;}
+.tj-card-noimg{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text-dim);font-size:26px;}
 .tj-card-body{padding:8px 9px;}
 .tj-card-top{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:var(--text-dim);margin-bottom:3px;font-family:var(--mono);}
 .tj-card-pair{font-weight:700;color:var(--text);font-size:12px;font-family:var(--mono);}
@@ -840,6 +840,11 @@ footer{text-align:center;padding:36px 0 14px;}
 
     <!-- ===== TAB 4: TRADE JOURNAL ===== -->
     <div class="tab-panel" id="tab-tradejournal">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="btn-outline" style="width:auto;padding:9px 16px;" id="setupBacktestToggleBtn" onclick="toggleSetupBacktestView()">📊 Setup Backtest</button>
+      </div>
+
+      <div id="tjMainView">
       <div class="section-title">Yeni İşlem Kaydı</div>
 
       <div class="grid-2">
@@ -899,6 +904,34 @@ footer{text-align:center;padding:36px 0 14px;}
 
       <div class="section-title"><span class="stitle">📔 Kayıtlı İşlemler</span><button class="btn-ghost-sm" onclick="exportTradeJournal()">⭳ CSV indir</button></div>
       <div id="tradeJournalList"></div>
+      </div>
+
+      <div id="tjSetupBacktestView" style="display:none;">
+        <div class="section-title">Yeni Setup Backtest Kaydı</div>
+        <div class="grid-2">
+          <div class="field"><label>Setup</label><input type="text" id="sbt_setup" placeholder="örn. Order Block + FVG Retest"></div>
+          <div class="field"><label>RR</label><input type="number" id="sbt_rr" step="0.01" placeholder="örn. 2.5"></div>
+        </div>
+        <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Sonuç</label>
+        <div class="radio-row" style="margin-bottom:16px;">
+          <div class="radio-opt selected" id="sbt_resWin" onclick="setSBTResult('WIN')">✅ WIN</div>
+          <div class="radio-opt" id="sbt_resLoss" onclick="setSBTResult('LOSS')">❌ LOSS</div>
+          <div class="radio-opt" id="sbt_resBE" onclick="setSBTResult('BE')">➖ BE</div>
+        </div>
+        <div class="field"><label>Not (opsiyonel)</label><input type="text" id="sbt_note" placeholder="kısa not..."></div>
+        <button class="btn" onclick="addSetupBacktest()">💾 Backtest Kaydını Ekle</button>
+
+        <div class="section-title"><span class="stitle">📈 Setup Win Rate'leri</span></div>
+        <div class="perf-grid" id="setupStatsGrid"></div>
+
+        <div class="section-title"><span class="stitle">🗂️ Kayıtlı Backtest İşlemleri</span><button class="btn-ghost-sm" onclick="exportSetupBacktests()">⭳ CSV indir</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Setup</th><th>RR</th><th>Sonuç</th><th>Not</th><th>İşlem</th></tr></thead>
+            <tbody id="setupBacktestBody"><tr class="empty-row"><td colspan="5">Henüz backtest kaydı yok.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -978,7 +1011,8 @@ const state = {
   simBalance: 10000,
   simStartBalance: 10000,
   simTrades: [],
-  simStats: { total:0, wins:0, totalR:0, netPnl:0 }
+  simStats: { total:0, wins:0, totalR:0, netPnl:0 },
+  setupBacktests: []
 };
 
 const PAIRS = {
@@ -1259,6 +1293,7 @@ async function saveRemoteData(){
     vaultHistory: state.vaultHistory,
     journal: state.journal,
     tradeJournal: state.tradeJournal,
+    setupBacktests: state.setupBacktests,
     simBalance: state.simBalance,
     simStartBalance: state.simStartBalance,
     simTrades: state.simTrades,
@@ -1295,11 +1330,12 @@ function applyRemoteData(data){
   if(needsRecompute || Array.isArray(data.vaultHistory)) recomputeVaultBalances();
   state.journal = Array.isArray(data.journal) ? data.journal : state.journal;
   state.tradeJournal = Array.isArray(data.tradeJournal) ? data.tradeJournal : state.tradeJournal;
+  state.setupBacktests = Array.isArray(data.setupBacktests) ? data.setupBacktests : state.setupBacktests;
   state.simBalance = typeof data.simBalance==='number' ? data.simBalance : state.simBalance;
   state.simStartBalance = typeof data.simStartBalance==='number' ? data.simStartBalance : state.simStartBalance;
   state.simTrades = Array.isArray(data.simTrades) ? data.simTrades : state.simTrades;
   state.simStats = data.simStats || state.simStats;
-  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderPerfStats();
+  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderPerfStats(); renderSetupBacktests();
   resetTJForm();
 }
 
@@ -2147,6 +2183,96 @@ function computeJournalStats(){
 
   return { totalPnl, tradeWinPct, dayWinPct, profitFactor, avgWin, avgLoss, bestDayPct };
 }
+/* ============ SETUP BACKTEST (Trade Journal alt-görünümü) ============ */
+let sbtResult = 'WIN';
+function toggleSetupBacktestView(){
+  const mainView = document.getElementById('tjMainView');
+  const btView = document.getElementById('tjSetupBacktestView');
+  const btn = document.getElementById('setupBacktestToggleBtn');
+  const showingBacktest = btView.style.display === 'none';
+  mainView.style.display = showingBacktest ? 'none' : 'block';
+  btView.style.display = showingBacktest ? 'block' : 'none';
+  btn.textContent = showingBacktest ? '📔 İşlem Kaydına Dön' : '📊 Setup Backtest';
+  if(showingBacktest) renderSetupBacktests();
+}
+function setSBTResult(r){
+  sbtResult = r;
+  document.getElementById('sbt_resWin').classList.toggle('selected', r==='WIN');
+  document.getElementById('sbt_resLoss').classList.toggle('selected', r==='LOSS');
+  document.getElementById('sbt_resBE').classList.toggle('selected', r==='BE');
+}
+function addSetupBacktest(){
+  const setup = document.getElementById('sbt_setup').value.trim();
+  const rr = parseFloat(document.getElementById('sbt_rr').value);
+  if(!setup){ showToast('Setup adını girmelisin.', 'error'); return; }
+  if(isNaN(rr) || rr<=0){ showToast('Geçerli bir RR girmelisin.', 'error'); return; }
+  const note = document.getElementById('sbt_note').value.trim();
+  state.setupBacktests.unshift({ id: Date.now(), setup, rr, result: sbtResult, note });
+  document.getElementById('sbt_setup').value = '';
+  document.getElementById('sbt_rr').value = '';
+  document.getElementById('sbt_note').value = '';
+  setSBTResult('WIN');
+  renderSetupBacktests();
+  scheduleSave();
+  showToast('Backtest kaydı eklendi ✓', 'success');
+}
+function deleteSetupBacktest(id){
+  state.setupBacktests = state.setupBacktests.filter(x=>x.id!==id);
+  renderSetupBacktests();
+  scheduleSave();
+}
+function computeSetupStats(){
+  const groups = {};
+  state.setupBacktests.forEach(e=>{
+    const key = e.setup.trim().toLowerCase();
+    if(!groups[key]) groups[key] = { name: e.setup.trim(), total:0, wins:0, rrSum:0, rrCount:0 };
+    groups[key].total++;
+    if(e.result==='WIN'){ groups[key].wins++; groups[key].rrSum += e.rr; groups[key].rrCount++; }
+  });
+  return Object.values(groups).map(g=>({
+    name: g.name,
+    total: g.total,
+    winRate: g.total ? (g.wins/g.total*100) : 0,
+    avgRR: g.rrCount ? (g.rrSum/g.rrCount) : 0
+  })).sort((a,b)=> b.winRate - a.winRate);
+}
+function renderSetupBacktests(){
+  const stats = computeSetupStats();
+  const gridEl = document.getElementById('setupStatsGrid');
+  if(!stats.length){
+    gridEl.innerHTML = '<div class="field-note" style="grid-column:1/-1;text-align:center;padding:14px;">Henüz setup kaydı yok — birkaç backtest ekleyince burada win rate\'leri göreceksin.</div>';
+  } else {
+    gridEl.innerHTML = stats.map(s=>`
+      <div class="perf-card">
+        <div class="perf-label">${escapeHtml(s.name)}</div>
+        <div class="perf-gauge-wrap">${radialGaugeSVG(s.winRate, tierColor(s.winRate,60,40))}<div class="perf-gauge-value">${s.winRate.toFixed(0)}%</div></div>
+        <div class="field-note" style="margin-top:8px;">${s.total} işlem · ort. R ${s.avgRR.toFixed(2)}</div>
+      </div>
+    `).join('');
+  }
+
+  const body = document.getElementById('setupBacktestBody');
+  if(!state.setupBacktests.length){
+    body.innerHTML = '<tr class="empty-row"><td colspan="5">Henüz backtest kaydı yok.</td></tr>';
+    return;
+  }
+  body.innerHTML = state.setupBacktests.map(e=>`
+    <tr>
+      <td>${escapeHtml(e.setup)}</td>
+      <td>1:${e.rr}</td>
+      <td class="${e.result==='WIN'?'win':e.result==='LOSS'?'loss':''}">${e.result}</td>
+      <td>${escapeHtml(e.note)||'—'}</td>
+      <td><button class="btn-danger-sm" onclick="deleteSetupBacktest(${e.id})">Sil</button></td>
+    </tr>
+  `).join('');
+}
+function exportSetupBacktests(){
+  if(!state.setupBacktests.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
+  const rows = [['Setup','RR','Sonuc','Not']];
+  state.setupBacktests.forEach(e=> rows.push([e.setup, e.rr, e.result, e.note||'']));
+  downloadCSV('nox_setup_backtest.csv', rows);
+}
+
 function renderPerfStats(){
   const el = document.getElementById('perfTotalPnl');
   if(!el) return; // vault sekmesi henüz DOM'da değilse sessizce çık
