@@ -928,7 +928,7 @@ footer{text-align:center;padding:36px 0 14px;}
           <div class="radio-opt" id="sbt_resLoss" onclick="setSBTResult('LOSS')">❌ LOSS</div>
           <div class="radio-opt" id="sbt_resBE" onclick="setSBTResult('BE')">➖ BE</div>
         </div>
-        <div class="field"><label>Not (opsiyonel)</label><input type="text" id="sbt_note" placeholder="kısa not..."></div>
+        <div class="field"><label>Not (opsiyonel)</label><textarea id="sbt_note" rows="2" placeholder="kısa not..."></textarea></div>
         <div class="field">
           <label>📸 Grafik Görüntüsü (opsiyonel)</label>
           <input type="file" id="sbt_screenshot" accept="image/*" onchange="handleSBTScreenshot(event)">
@@ -2369,7 +2369,7 @@ function openSBTModal(id){
       <div class="radio-opt ${e.result==='LOSS'?'selected loss-mode':''}" id="sbtm_resLoss" onclick="setSBTMResult('LOSS')">❌ LOSS</div>
       <div class="radio-opt ${e.result==='BE'?'selected':''}" id="sbtm_resBE" onclick="setSBTMResult('BE')">➖ BE</div>
     </div>
-    <div class="field"><label>Not</label><input type="text" id="sbtm_note" value="${escapeHtml(e.note||'')}"></div>
+    <div class="field"><label>Not</label><textarea id="sbtm_note" rows="3">${escapeHtml(e.note||'')}</textarea></div>
   `;
   document.getElementById('sbtModalOverlay').classList.add('open');
 }
