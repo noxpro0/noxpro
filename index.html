@@ -944,12 +944,7 @@ footer{text-align:center;padding:36px 0 14px;}
         <div class="perf-grid" id="setupStatsGrid"></div>
 
         <div class="section-title"><span class="stitle">🗂️ Kayıtlı Backtest İşlemleri</span><button class="btn-ghost-sm" onclick="exportSetupBacktests()">⭳ CSV indir</button></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Setup</th><th>RR</th><th>Sonuç</th><th>Not</th><th>Görüntü</th><th>İşlem</th></tr></thead>
-            <tbody id="setupBacktestBody"><tr class="empty-row"><td colspan="6">Henüz backtest kaydı yok.</td></tr></tbody>
-          </table>
-        </div>
+        <div id="setupBacktestList"></div>
       </div>
     </div>
 
@@ -988,6 +983,20 @@ footer{text-align:center;padding:36px 0 14px;}
       </div>
     </div>
     <div class="tj-modal-body" id="vaultModalBody"></div>
+  </div>
+</div>
+
+<div class="tj-modal-overlay" id="sbtModalOverlay" onclick="closeSBTModal(event)">
+  <div class="tj-modal" onclick="event.stopPropagation()">
+    <div class="tj-modal-header">
+      <span id="sbtModalTitle">Backtest Kaydı</span>
+      <div class="tj-modal-actions">
+        <button class="tj-modal-btn save" onclick="saveSBTModalEdit()" title="Kaydet">💾</button>
+        <button class="tj-modal-btn delete" onclick="deleteCurrentSBTEntry()" title="Sil">🗑️</button>
+        <button class="tj-modal-close" onclick="closeSBTModal()">✕</button>
+      </div>
+    </div>
+    <div class="tj-modal-body" id="sbtModalBody"></div>
   </div>
 </div>
 
@@ -2309,25 +2318,119 @@ function renderSetupBacktests(){
     `).join('');
   }
 
-  const body = document.getElementById('setupBacktestBody');
+  const listEl = document.getElementById('setupBacktestList');
   if(!state.setupBacktests.length){
-    body.innerHTML = '<tr class="empty-row"><td colspan="5">Henüz backtest kaydı yok.</td></tr>';
+    listEl.innerHTML = '<div class="field-note" style="text-align:center;padding:24px;">Henüz backtest kaydı yok.</div>';
     return;
   }
-  body.innerHTML = state.setupBacktests.map(e=>`
-    <tr>
-      <td>${escapeHtml(e.setup)}</td>
-      <td>1:${e.rr}</td>
-      <td class="${e.result==='WIN'?'win':e.result==='LOSS'?'loss':''}">${e.result}</td>
-      <td>${escapeHtml(e.note)||'—'}</td>
-      <td>${e.screenshot ? `<img src="${e.screenshot}" onclick="viewSBTScreenshot(${e.id})" style="width:36px;height:36px;object-fit:cover;border-radius:4px;cursor:zoom-in;border:1px solid var(--line-bright);">` : '—'}</td>
-      <td><button class="btn-danger-sm" onclick="deleteSetupBacktest(${e.id})">Sil</button></td>
-    </tr>
-  `).join('');
+  listEl.innerHTML = '<div class="tj-grid">' + state.setupBacktests.map(e=>`
+    <div class="tj-card ${sbtResultClass(e.result)}" onclick="openSBTModal(${e.id})">
+      ${e.screenshot
+        ? `<img class="tj-card-img" src="${e.screenshot}" loading="lazy">`
+        : `<div class="tj-card-noimg">📊</div>`}
+      <div class="tj-card-body">
+        <div class="tj-card-top"><span>1:${e.rr}</span><span>${e.result}</span></div>
+        <div class="tj-card-pair">${escapeHtml(e.setup)}</div>
+        <div class="tj-card-meta">
+          <span style="color:var(--text-dim);">${e.note ? escapeHtml(e.note) : '—'}</span>
+        </div>
+      </div>
+    </div>
+  `).join('') + '</div>';
 }
-function viewSBTScreenshot(id){
+function sbtResultClass(result){
+  if(result==='WIN') return 'res-win';
+  if(result==='LOSS') return 'res-loss';
+  return 'res-wait';
+}
+let currentSBTEntry = null;
+let sbtmResult = 'WIN';
+function openSBTModal(id){
   const e = state.setupBacktests.find(x=>x.id===id);
-  if(e && e.screenshot) openScreenshotFullsize(e.screenshot);
+  if(!e) return;
+  currentSBTEntry = e;
+  sbtmResult = e.result;
+  document.getElementById('sbtModalTitle').textContent = e.setup;
+  document.getElementById('sbtModalBody').innerHTML = `
+    ${e.screenshot ? `<img id="sbtm_screenshotImg" src="${e.screenshot}" onclick="openScreenshotFullsize('${e.screenshot}')" style="width:100%;border-radius:4px;border:1px solid var(--line-bright);cursor:zoom-in;">` : ''}
+    <div class="field">
+      <label>📸 Görüntü ${e.screenshot?'Değiştir':'Ekle'}</label>
+      <input type="file" id="sbtm_screenshot" accept="image/*" onchange="handleSBTModalScreenshot(event)">
+      <label for="sbtm_screenshot" class="file-upload-btn">
+        <span class="file-upload-icon">📸</span>
+        <span class="file-upload-text" id="sbtm_screenshotFileName">${e.screenshot ? 'Yeni görüntü seç...' : 'Görüntü seç...'}</span>
+      </label>
+    </div>
+    <div class="field"><label>Setup</label><input type="text" id="sbtm_setup" value="${escapeHtml(e.setup)}"></div>
+    <div class="field"><label>RR</label><input type="number" id="sbtm_rr" step="0.01" value="${e.rr}"></div>
+    <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Sonuç</label>
+    <div class="radio-row" style="margin-bottom:14px;">
+      <div class="radio-opt ${e.result==='WIN'?'selected':''}" id="sbtm_resWin" onclick="setSBTMResult('WIN')">✅ WIN</div>
+      <div class="radio-opt ${e.result==='LOSS'?'selected loss-mode':''}" id="sbtm_resLoss" onclick="setSBTMResult('LOSS')">❌ LOSS</div>
+      <div class="radio-opt ${e.result==='BE'?'selected':''}" id="sbtm_resBE" onclick="setSBTMResult('BE')">➖ BE</div>
+    </div>
+    <div class="field"><label>Not</label><input type="text" id="sbtm_note" value="${escapeHtml(e.note||'')}"></div>
+  `;
+  document.getElementById('sbtModalOverlay').classList.add('open');
+}
+function setSBTMResult(r){
+  sbtmResult = r;
+  document.getElementById('sbtm_resWin').classList.toggle('selected', r==='WIN');
+  document.getElementById('sbtm_resLoss').classList.toggle('selected', r==='LOSS');
+  document.getElementById('sbtm_resLoss').classList.toggle('loss-mode', r==='LOSS');
+  document.getElementById('sbtm_resBE').classList.toggle('selected', r==='BE');
+}
+let sbtmScreenshotData = undefined;
+function handleSBTModalScreenshot(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Lütfen bir görüntü dosyası seç.', 'error'); return; }
+  document.getElementById('sbtm_screenshotFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width*scale);
+      canvas.height = Math.round(img.height*scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      sbtmScreenshotData = canvas.toDataURL('image/jpeg', 0.72);
+      const imgEl = document.getElementById('sbtm_screenshotImg');
+      if(imgEl) imgEl.src = sbtmScreenshotData;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function saveSBTModalEdit(){
+  if(!currentSBTEntry) return;
+  const setup = document.getElementById('sbtm_setup').value.trim();
+  const rr = parseFloat(document.getElementById('sbtm_rr').value);
+  if(!setup){ showToast('Setup adı boş olamaz.', 'error'); return; }
+  if(isNaN(rr) || rr<=0){ showToast('Geçerli bir RR gir.', 'error'); return; }
+  currentSBTEntry.setup = setup;
+  currentSBTEntry.rr = rr;
+  currentSBTEntry.result = sbtmResult;
+  currentSBTEntry.note = document.getElementById('sbtm_note').value.trim();
+  if(sbtmScreenshotData !== undefined) currentSBTEntry.screenshot = sbtmScreenshotData;
+  renderSetupBacktests();
+  scheduleSave();
+  showToast('Backtest kaydı güncellendi ✓', 'success');
+  closeSBTModal();
+}
+function deleteCurrentSBTEntry(){
+  if(!currentSBTEntry) return;
+  if(!confirm('Bu backtest kaydını silmek istediğine emin misin?')) return;
+  deleteSetupBacktest(currentSBTEntry.id);
+  closeSBTModal();
+}
+function closeSBTModal(){
+  document.getElementById('sbtModalOverlay').classList.remove('open');
+  currentSBTEntry = null;
+  sbtmScreenshotData = undefined;
 }
 function exportSetupBacktests(){
   if(!state.setupBacktests.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
