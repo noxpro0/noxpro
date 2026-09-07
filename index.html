@@ -538,6 +538,18 @@ footer{text-align:center;padding:36px 0 14px;}
 .tj-modal-btn.pin.pinned{border-color:var(--amber);color:var(--amber);background:rgba(240,167,41,0.14);}
 .tj-modal-btn.delete{border-color:var(--red-dim);color:var(--red);}
 .tj-modal-btn.delete:hover{background:var(--red);color:#000;}
+.sbt-nav-btn{
+  position:fixed;top:50%;transform:translateY(-50%);
+  width:44px;height:44px;border-radius:50%;
+  background:var(--panel-2);border:1px solid var(--line-bright);color:var(--text-mid);
+  display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;
+  z-index:95;transition:all .15s;
+}
+.sbt-nav-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--panel);}
+.sbt-nav-btn.prev{left:16px;}
+.sbt-nav-btn.next{right:16px;}
+@media(max-width:640px){.sbt-nav-btn{width:36px;height:36px;font-size:18px;}
+.sbt-nav-btn.prev{left:6px;} .sbt-nav-btn.next{right:6px;}}
 
 /* ---------- SETTINGS: ICON BUTTON, TOGGLE SWITCH ---------- */
 .icon-btn{
@@ -987,6 +999,7 @@ footer{text-align:center;padding:36px 0 14px;}
 </div>
 
 <div class="tj-modal-overlay" id="sbtModalOverlay" onclick="closeSBTModal(event)">
+  <button class="sbt-nav-btn prev" onclick="event.stopPropagation(); navigateSBT(-1)" title="Önceki">‹</button>
   <div class="tj-modal" onclick="event.stopPropagation()">
     <div class="tj-modal-header">
       <span id="sbtModalTitle">Backtest Kaydı</span>
@@ -998,6 +1011,7 @@ footer{text-align:center;padding:36px 0 14px;}
     </div>
     <div class="tj-modal-body" id="sbtModalBody"></div>
   </div>
+  <button class="sbt-nav-btn next" onclick="event.stopPropagation(); navigateSBT(1)" title="Sonraki">›</button>
 </div>
 
 <div class="tj-modal-overlay" id="settingsModalOverlay" onclick="closeSettingsModal(event)">
@@ -2432,6 +2446,22 @@ function closeSBTModal(){
   currentSBTEntry = null;
   sbtmScreenshotData = undefined;
 }
+function navigateSBT(direction){
+  if(!currentSBTEntry) return;
+  const idx = state.setupBacktests.findIndex(x=>x.id===currentSBTEntry.id);
+  if(idx===-1) return;
+  let newIdx = idx + direction;
+  if(newIdx < 0) newIdx = state.setupBacktests.length - 1;
+  if(newIdx >= state.setupBacktests.length) newIdx = 0;
+  openSBTModal(state.setupBacktests[newIdx].id);
+}
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('sbtModalOverlay').classList.contains('open')) return;
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if(['INPUT','TEXTAREA','SELECT'].includes(tag)) return; // yazarken ok tuşu imleci hareket ettirsin
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); navigateSBT(-1); }
+  if(e.key === 'ArrowRight'){ e.preventDefault(); navigateSBT(1); }
+});
 function exportSetupBacktests(){
   if(!state.setupBacktests.length){ showToast('Dışa aktarılacak kayıt yok.', 'error'); return; }
   const rows = [['Setup','RR','Sonuc','Not']];
