@@ -459,12 +459,18 @@ footer{text-align:center;padding:36px 0 14px;}
 
 /* ---------- DAILY PERFORMANCE (RADIAL GAUGES) ---------- */
 .perf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-top:18px;}
+@media(max-width:480px){
+  .perf-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .perf-card{padding:11px 8px 10px;}
+  .perf-gauge-wrap{width:72px;height:72px;}
+  .perf-gauge-value{font-size:12.5px;}
+}
 .perf-card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 10px 12px;text-align:center;position:relative;}
 .perf-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--line-bright);}
 .perf-card.hero::before{background:var(--amber);}
 .perf-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
 .perf-gauge-wrap{position:relative;width:88px;height:88px;margin:0 auto;overflow:visible;}
-.perf-gauge-wrap svg{overflow:visible;display:block;}
+.perf-gauge-wrap svg{overflow:visible;display:block;width:100%;height:100%;}
 .perf-gauge-wrap svg circle{transition:stroke-dashoffset .6s ease;}
 .perf-gauge-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14.5px;color:var(--text);}
 .perf-big-value{font-family:var(--mono);font-weight:600;font-size:22px;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;padding:12px 0;}
@@ -523,11 +529,26 @@ footer{text-align:center;padding:36px 0 14px;}
 .tj-card-dir.long{color:var(--teal);}
 .tj-card-dir.short{color:var(--red);}
 .tj-card-score{color:var(--amber);font-weight:700;}
+.tj-filter-bar{
+  display:grid;grid-template-columns:1fr 1fr auto auto auto auto;gap:8px;margin-bottom:14px;
+}
+.tj-filter-bar input,.tj-filter-bar select{padding:9px 10px;font-size:12.5px;}
+@media(max-width:640px){.tj-filter-bar{grid-template-columns:1fr 1fr;}}
+
+/* ---------- CALENDAR HEATMAP ---------- */
+.heatmap-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;margin-top:6px;}
+.heatmap-cell{aspect-ratio:1;border-radius:3px;transition:transform .1s;cursor:default;}
+.heatmap-cell:hover{transform:scale(1.35);}
+@media(max-width:640px){.heatmap-grid{grid-template-columns:repeat(12,1fr);}}
 
 /* ---------- TRADE JOURNAL: DETAIL MODAL ---------- */
 .tj-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:90;display:none;align-items:center;justify-content:center;padding:20px;}
 .tj-modal-overlay.open{display:flex;}
-.tj-modal{width:100%;max-width:320px;max-height:82vh;background:var(--panel);border:1px solid var(--line-bright);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.65);}
+.tj-modal{width:min(320px, 92vw);max-height:82vh;background:var(--panel);border:1px solid var(--line-bright);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.65);}
+@media(max-width:400px){
+  .tj-modal-header{padding:10px 12px;}
+  .tj-modal-body{padding:12px;gap:8px;}
+}
 .tj-modal-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);font-family:var(--sans);font-weight:600;font-size:13px;background:var(--panel-2);color:var(--text);gap:10px;}
 .tj-modal-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .tj-modal-btn{background:none;border:1px solid var(--line-bright);font-size:13px;padding:5px 9px;border-radius:var(--radius);cursor:pointer;line-height:1;}
@@ -580,6 +601,21 @@ footer{text-align:center;padding:36px 0 14px;}
 }
 .theme-transition-overlay.animating{transition:opacity .28s ease;}
 .theme-transition-overlay.phase-in{opacity:1;}
+
+/* ---------- LOADING OVERLAY ---------- */
+.loading-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:150;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  backdrop-filter:blur(2px);
+}
+.loading-overlay.show{display:flex;}
+.loading-spinner{
+  width:38px;height:38px;border-radius:50%;
+  border:3px solid rgba(240,167,41,0.2);border-top-color:var(--amber);
+  animation:loadingSpin .7s linear infinite;
+}
+@keyframes loadingSpin{to{transform:rotate(360deg);}}
+.loading-text{font-family:var(--mono);font-size:12px;color:var(--text-mid);letter-spacing:0.05em;}
 .tj-modal-close{background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;}
 .tj-modal-close:hover{color:var(--red);}
 .tj-modal-body{padding:14px;overflow-y:auto;font-size:12px;display:flex;flex-direction:column;gap:9px;}
@@ -632,6 +668,11 @@ footer{text-align:center;padding:36px 0 14px;}
 </div>
 
 <!-- ============ MAIN APP ============ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Veriler yükleniyor...</div>
+</div>
+
 <div class="shell" id="appScreen" style="display:none;">
 
   <div class="topbar">
@@ -776,6 +817,11 @@ footer{text-align:center;padding:36px 0 14px;}
           <div class="perf-label">En İyi Gün / Toplam Kâr</div>
           <div class="perf-gauge-wrap" id="perfBestDayGauge"></div>
         </div>
+        <div class="perf-card">
+          <div class="perf-label">Maks. Drawdown</div>
+          <div class="perf-big-value" id="perfMaxDD" style="font-size:19px;">$0.00</div>
+          <div class="field-note" id="perfMaxDDPct">%0.0</div>
+        </div>
         <div class="perf-card" style="grid-column:span 2;">
           <div class="perf-label">Ort. Kazanç / Ort. Kayıp (işlem başına)</div>
           <div class="perf-winloss-bar">
@@ -788,6 +834,10 @@ footer{text-align:center;padding:36px 0 14px;}
           </div>
         </div>
       </div>
+
+      <div class="section-title">📅 Son 60 Gün Isı Haritası</div>
+      <div class="heatmap-grid" id="calendarHeatmap"></div>
+      <div class="field-note">yeşil = kazançlı gün · kırmızı = kayıplı gün · koyuluk büyüklüğü gösterir</div>
 
       <div class="section-title">Yeni Kasa Hareketi</div>
       <label style="display:block;font-size:10.5px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">İşlem Türü</label>
@@ -925,6 +975,21 @@ footer{text-align:center;padding:36px 0 14px;}
       <button class="btn" onclick="addTradeJournalEntry()">💾 İşlemi Kaydet</button>
 
       <div class="section-title"><span class="stitle">📔 Kayıtlı İşlemler</span><button class="btn-ghost-sm" onclick="exportTradeJournal()">⭳ CSV indir</button></div>
+      <div class="tj-filter-bar">
+        <input type="text" id="tjf_pair" placeholder="Parite ara..." oninput="renderTradeJournal()">
+        <input type="text" id="tjf_setup" placeholder="Setup ara..." oninput="renderTradeJournal()">
+        <select id="tjf_result" onchange="renderTradeJournal()">
+          <option value="">Tüm Sonuçlar</option>
+          <option value="TP">TP</option>
+          <option value="SL">SL</option>
+          <option value="BE">BE</option>
+          <option value="Açık">Açık</option>
+          <option value="Manuel">Manuel</option>
+        </select>
+        <input type="date" id="tjf_from" onchange="renderTradeJournal()" title="Başlangıç tarihi">
+        <input type="date" id="tjf_to" onchange="renderTradeJournal()" title="Bitiş tarihi">
+        <button class="btn-ghost-sm" onclick="clearTJFilters()">Temizle</button>
+      </div>
       <div id="tradeJournalList"></div>
       </div>
 
@@ -1033,6 +1098,17 @@ footer{text-align:center;padding:36px 0 14px;}
           <span class="switch-slider"></span>
         </label>
       </div>
+
+      <div style="height:1px;background:var(--line);margin:16px 0;"></div>
+
+      <div class="settings-row-title" style="margin-bottom:8px;">💾 Tam Yedekleme</div>
+      <div class="field-note" style="margin-bottom:10px;">Journal, Kasa, Backtest — tüm verini tek dosyaya indir ya da geri yükle.</div>
+      <button class="btn btn-outline" style="margin-bottom:8px;" onclick="exportFullBackup()">⭳ Tüm Veriyi İndir (JSON)</button>
+      <input type="file" id="backupFileInput" accept="application/json" onchange="importFullBackup(event)">
+      <label for="backupFileInput" class="file-upload-btn">
+        <span class="file-upload-icon">⭱</span>
+        <span class="file-upload-text">Yedekten Geri Yükle...</span>
+      </label>
     </div>
   </div>
 </div>
@@ -1264,7 +1340,63 @@ function exportSim(){
 }
 
 /* ============ GATE ============ */
+/* ============ PIN KİLİT MEKANİZMASI (3 yanlış -> 60sn kilit) ============ */
+const PIN_FAIL_KEY = 'nox-pin-fails';
+const PIN_LOCKOUT_KEY = 'nox-pin-lockout-until';
+let lockoutTimer = null;
+
+function getPinLockoutRemaining(){
+  const until = parseInt(localStorage.getItem(PIN_LOCKOUT_KEY) || '0');
+  const remaining = until - Date.now();
+  return remaining > 0 ? remaining : 0;
+}
+function registerPinFailure(){
+  let fails = parseInt(localStorage.getItem(PIN_FAIL_KEY) || '0') + 1;
+  if(fails >= 3){
+    localStorage.setItem(PIN_LOCKOUT_KEY, String(Date.now() + 60000));
+    localStorage.setItem(PIN_FAIL_KEY, '0');
+    startPinLockoutUI();
+  } else {
+    localStorage.setItem(PIN_FAIL_KEY, String(fails));
+    showToast(`Hatalı PIN. ${3-fails} deneme hakkın kaldı.`, 'error');
+  }
+}
+function clearPinFailures(){
+  localStorage.removeItem(PIN_FAIL_KEY);
+  localStorage.removeItem(PIN_LOCKOUT_KEY);
+}
+function startPinLockoutUI(){
+  const btn = document.getElementById('gateEnterBtn');
+  const note = document.getElementById('pinStatusNote');
+  clearInterval(lockoutTimer);
+  function tick(){
+    const remaining = getPinLockoutRemaining();
+    if(remaining <= 0){
+      clearInterval(lockoutTimer);
+      btn.disabled = false;
+      btn.textContent = 'Terminale Giriş Yap';
+      note.textContent = 'Kayıtlı adın ve verilerin otomatik yüklenecek.';
+      return;
+    }
+    btn.disabled = true;
+    const secs = Math.ceil(remaining/1000);
+    btn.textContent = `⏳ ${secs} saniye bekle`;
+    note.textContent = '3 yanlış PIN denemesi yapıldı - güvenlik için kısa bir süre bekletiliyor.';
+  }
+  tick();
+  lockoutTimer = setInterval(tick, 250);
+}
+function checkPinLockoutOnLoad(){
+  if(getPinLockoutRemaining() > 0) startPinLockoutUI();
+}
+function showLoadingOverlay(){ document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoadingOverlay(){ document.getElementById('loadingOverlay').classList.remove('show'); }
+
 async function enterTerminal(){
+  if(getPinLockoutRemaining() > 0){
+    showToast('Çok fazla yanlış deneme yapıldı, biraz bekle.', 'error');
+    return;
+  }
   const pinVal = document.getElementById('pinInput').value.trim();
   if(!pinVal){ showToast('PIN girmeden giriş yapılamaz.', 'error'); return; }
 
@@ -1274,7 +1406,7 @@ async function enterTerminal(){
   try{
     const res = await fetch('/data', { headers:{ 'x-nox-pin': pinVal } });
     if(res.status===401){
-      showToast('Hatalı PIN.', 'error');
+      registerPinFailure();
       return;
     }
     if(!res.ok){
@@ -1283,11 +1415,14 @@ async function enterTerminal(){
       return;
     }
     // PIN doğrulandı - şimdi içeri al
+    clearPinFailures();
     state.pin = pinVal;
     const data = await res.json();
     document.getElementById('gateScreen').style.display='none';
     document.getElementById('appScreen').style.display='block';
+    showLoadingOverlay();
     applyRemoteData(data);
+    hideLoadingOverlay();
     if(state.username === 'GUEST'){
       const name = prompt('İlk girişin! Terminalde görünecek adını yaz:');
       if(name && name.trim()){
@@ -1300,7 +1435,9 @@ async function enterTerminal(){
   }catch(err){
     showToast('Giriş yapılamadı: ' + (err && err.message ? err.message : 'bilinmeyen hata'), 'error'); console.error('enterTerminal hatası:', err);
   }finally{
-    btn.disabled = false; btn.textContent = 'Terminale Giriş Yap';
+    if(getPinLockoutRemaining() <= 0){
+      btn.disabled = false; btn.textContent = 'Terminale Giriş Yap';
+    }
   }
 }
 function renameUser(){
@@ -1680,6 +1817,49 @@ function closeSettingsModal(){
   document.getElementById('settingsModalOverlay').classList.remove('open');
 }
 
+function exportFullBackup(){
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    username: state.username,
+    vaultBalance: state.vaultBalance,
+    vaultHistory: state.vaultHistory,
+    journal: state.journal,
+    tradeJournal: state.tradeJournal,
+    setupBacktests: state.setupBacktests,
+    simBalance: state.simBalance,
+    simStartBalance: state.simStartBalance,
+    simTrades: state.simTrades,
+    simStats: state.simStats
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'nox_pro_yedek_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Yedek indirildi ✓', 'success');
+}
+function importFullBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!confirm('Bu yedeği yüklemek MEVCUT tüm verinin üzerine yazacak. Emin misin?')) return;
+      applyRemoteData(data);
+      scheduleSave();
+      showToast('Yedek geri yüklendi ✓', 'success');
+      closeSettingsModal();
+    }catch(err){
+      showToast('Yedek dosyası okunamadı: geçersiz JSON.', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
 let audioCtx = null;
 function getAudioCtx(){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1991,13 +2171,39 @@ function tjResultClass(result){
   if(result==='Açık') return 'res-wait';
   return '';
 }
+function getTJFilters(){
+  return {
+    pair: (document.getElementById('tjf_pair')?.value || '').trim().toLowerCase(),
+    setup: (document.getElementById('tjf_setup')?.value || '').trim().toLowerCase(),
+    result: document.getElementById('tjf_result')?.value || '',
+    from: document.getElementById('tjf_from')?.value || '',
+    to: document.getElementById('tjf_to')?.value || ''
+  };
+}
+function clearTJFilters(){
+  ['tjf_pair','tjf_setup','tjf_result','tjf_from','tjf_to'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  renderTradeJournal();
+}
 function renderTradeJournal(){
   const wrap = document.getElementById('tradeJournalList');
   if(!state.tradeJournal.length){
     wrap.innerHTML = '<div class="field-note" style="text-align:center;padding:24px;">Henüz işlem kaydı yok.</div>';
     return;
   }
-  const sorted = state.tradeJournal.slice().sort((a,b)=> (b.pinned?1:0) - (a.pinned?1:0));
+  const f = getTJFilters();
+  let filtered = state.tradeJournal.filter(e=>{
+    if(f.pair && !(e.pair||'').toLowerCase().includes(f.pair)) return false;
+    if(f.setup && !(e.setup||'').toLowerCase().includes(f.setup)) return false;
+    if(f.result && e.result !== f.result) return false;
+    if(f.from && (e.date||'') < f.from) return false;
+    if(f.to && (e.date||'') > f.to) return false;
+    return true;
+  });
+  if(!filtered.length){
+    wrap.innerHTML = '<div class="field-note" style="text-align:center;padding:24px;">Filtreye uyan işlem bulunamadı.</div>';
+    return;
+  }
+  const sorted = filtered.slice().sort((a,b)=> (b.pinned?1:0) - (a.pinned?1:0));
   wrap.innerHTML = '<div class="tj-grid">' + sorted.map(e=>`
     <div class="tj-card ${tjResultClass(e.result)}" onclick="openTJModal(${e.id})">
       ${e.screenshot
@@ -2469,6 +2675,61 @@ function exportSetupBacktests(){
   downloadCSV('nox_setup_backtest.csv', rows);
 }
 
+function computeClosedTradesPnl(){
+  return state.tradeJournal
+    .filter(e => e.result==='TP' || e.result==='SL' || e.result==='BE')
+    .filter(e => e.date)
+    .map(e=>{
+      let pnl = 0;
+      if(e.result==='TP') pnl = (e.riskUsd||0) * (e.rr||0);
+      else if(e.result==='SL') pnl = -(e.riskUsd||0);
+      return { date: e.date, pnl };
+    })
+    .sort((a,b)=> a.date.localeCompare(b.date));
+}
+function computeDrawdown(){
+  const trades = computeClosedTradesPnl();
+  let equity = 0, peak = 0, maxDD = 0, maxDDPct = 0;
+  trades.forEach(t=>{
+    equity += t.pnl;
+    if(equity > peak) peak = equity;
+    const dd = peak - equity;
+    if(dd > maxDD) maxDD = dd;
+    if(peak > 0){
+      const ddPct = dd/peak*100;
+      if(ddPct > maxDDPct) maxDDPct = ddPct;
+    }
+  });
+  return { maxDD, maxDDPct };
+}
+function renderCalendarHeatmap(){
+  const wrap = document.getElementById('calendarHeatmap');
+  if(!wrap) return;
+  const trades = computeClosedTradesPnl();
+  const dayMap = {};
+  trades.forEach(t=>{ dayMap[t.date] = (dayMap[t.date]||0) + t.pnl; });
+
+  const days = [];
+  const today = new Date();
+  for(let i=59;i>=0;i--){
+    const d = new Date(today);
+    d.setDate(d.getDate()-i);
+    const key = d.toISOString().slice(0,10);
+    days.push({ date:key, pnl: dayMap[key]||0, hasTrade: dayMap.hasOwnProperty(key) });
+  }
+  const maxAbs = Math.max(1, ...days.map(d=>Math.abs(d.pnl)));
+  wrap.innerHTML = days.map(d=>{
+    let bg = 'rgba(255,255,255,0.05)';
+    if(d.hasTrade){
+      const intensity = Math.min(1, Math.abs(d.pnl)/maxAbs);
+      if(d.pnl > 0) bg = `rgba(0,217,100,${(0.15+intensity*0.65).toFixed(2)})`;
+      else if(d.pnl < 0) bg = `rgba(255,77,106,${(0.15+intensity*0.65).toFixed(2)})`;
+      else bg = 'rgba(240,167,41,0.35)';
+    }
+    const label = d.hasTrade ? (d.pnl>=0?'+':'-')+fmt(Math.abs(d.pnl)) : 'İşlem yok';
+    return `<div class="heatmap-cell" style="background:${bg};" title="${d.date} — ${label}"></div>`;
+  }).join('');
+}
 function renderPerfStats(){
   const el = document.getElementById('perfTotalPnl');
   if(!el) return; // vault sekmesi henüz DOM'da değilse sessizce çık
@@ -2502,10 +2763,16 @@ function renderPerfStats(){
   document.getElementById('perfLossBar').style.width = (100-winPct) + '%';
   document.getElementById('perfAvgWinLabel').textContent = '+' + fmt(s.avgWin);
   document.getElementById('perfAvgLossLabel').textContent = '-' + fmt(s.avgLoss);
+
+  const dd = computeDrawdown();
+  document.getElementById('perfMaxDD').textContent = fmt(dd.maxDD);
+  document.getElementById('perfMaxDDPct').textContent = '%' + dd.maxDDPct.toFixed(1);
+  renderCalendarHeatmap();
 }
 
 /* ============ INIT ============ */
 initTheme();
+checkPinLockoutOnLoad();
 applyPairTemplate();
 renderJournal();
 renderVault();
