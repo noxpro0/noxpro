@@ -1421,8 +1421,11 @@ async function enterTerminal(){
     document.getElementById('gateScreen').style.display='none';
     document.getElementById('appScreen').style.display='block';
     showLoadingOverlay();
-    applyRemoteData(data);
-    hideLoadingOverlay();
+    try{
+      applyRemoteData(data);
+    } finally {
+      hideLoadingOverlay(); // ne olursa olsun bu ekran kesin kapanır, ekran kilitli kalmaz
+    }
     if(state.username === 'GUEST'){
       const name = prompt('İlk girişin! Terminalde görünecek adını yaz:');
       if(name && name.trim()){
@@ -1514,8 +1517,16 @@ function applyRemoteData(data){
   state.simStartBalance = typeof data.simStartBalance==='number' ? data.simStartBalance : state.simStartBalance;
   state.simTrades = Array.isArray(data.simTrades) ? data.simTrades : state.simTrades;
   state.simStats = data.simStats || state.simStats;
-  renderJournal(); renderVault(); renderSim(); renderTradeJournal(); renderPerfStats(); renderSetupBacktests();
-  resetTJForm();
+
+  // Render adımlarını tek tek koru - biri hata verse bile diğerleri ve ekran açılmaya devam etsin
+  const safeRun = (fn, label) => { try{ fn(); }catch(err){ console.error('Render hatası ('+label+'):', err); } };
+  safeRun(renderJournal, 'renderJournal');
+  safeRun(renderVault, 'renderVault');
+  safeRun(renderSim, 'renderSim');
+  safeRun(renderTradeJournal, 'renderTradeJournal');
+  safeRun(renderPerfStats, 'renderPerfStats');
+  safeRun(renderSetupBacktests, 'renderSetupBacktests');
+  safeRun(resetTJForm, 'resetTJForm');
 }
 
 /* ============ TABS ============ */
